@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>CRMAIze - Customer Retention Dashboard</title>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/css/foundation.min.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+		<style>
+			.dashboard-card {
+				background: white;
+				border-radius: 8px;
+				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+			}
+			.metric-card {
+				text-align: center;
+				padding: 1.5rem;
+			}
+			.metric-value {
+				font-size: 2.5rem;
+				font-weight: bold;
+				color: #1779ba;
+			}
+			.metric-label {
+				color: #666;
+				font-size: 0.9rem;
+				text-transform: uppercase;
+			}
+			.segment-badge {
+				display: inline-block;
+				padding: 0.25rem 0.5rem;
+				border-radius: 4px;
+				font-size: 0.8rem;
+			}
+			.segment-high-value {
+				background: #28a745;
+				color: white;
+			}
+			.segment-at-risk {
+				background: #dc3545;
+				color: white;
+			}
+			.segment-loyal {
+				background: #17a2b8;
+				color: white;
+			}
+			.segment-new {
+				background: #ffc107;
+				color: black;
+			}
+			.segment-inactive {
+				background: #6c757d;
+				color: white;
+			}
+			.churn-risk-high {
+				color: #dc3545;
+			}
+			.churn-risk-medium {
+				color: #ffc107;
+			}
+			.churn-risk-low {
+				color: #28a745;
+			}
+		</style>
+	</head>
+	<body>
+		<div
+			class="off-canvas-wrapper">
+			<!-- Off-canvas menu -->
+			<div class="off-canvas position-left" id="offCanvas" data-off-canvas>
+				<div class="grid-y grid-padding-y" style="height: 100%;">
+					<div class="cell shrink">
+						<h4 class="text-center">CRMAIze</h4>
+						<hr>
+					</div>
+					<div class="cell auto">
+						<ul class="vertical menu">
+							<li>
+								<a href="/dashboard">
+									<i class="fas fa-tachometer-alt"></i>
+									Dashboard</a>
+							</li>
+							<li>
+								<a href="/campaigns">
+									<i class="fas fa-bullhorn"></i>
+									Campaigns</a>
+							</li>
+							<li>
+								<a href="/customers">
+									<i class="fas fa-users"></i>
+									Customers</a>
+							</li>
+							<li>
+								<a href="/analytics">
+									<i class="fas fa-chart-bar"></i>
+									Analytics</a>
+							</li>
+						</ul>
+					</div>
+					<div class="cell shrink">
+						<hr>
+						<p class="text-center small">AI-Powered Customer Retention</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Main content -->
+			<div
+				class="off-canvas-content" data-off-canvas-content>
+				<!-- Top bar -->
+				<div class="top-bar">
+					<div class="top-bar-left">
+						<button class="menu-icon" type="button" data-toggle="offCanvas"></button>
+						<span class="top-bar-title">CRMAIze Dashboard</span>
+					</div>
+					<div class="top-bar-right">
+						<span class="label success">AI Active</span>
+					</div>
+				</div>
+
+				<!-- Main content area -->
+				<div class="grid-container fluid">
+					<div
+						class="grid-x grid-padding-x">
+						<!-- KPI Cards -->
+						<div class="cell medium-3">
+							<div class="dashboard-card metric-card">
+								<div class="metric-value">{{ totalCustomers|number_format }}</div>
+								<div class="metric-label">Total Customers</div>
+							</div>
+						</div>
+						<div class="cell medium-3">
+							<div class="dashboard-card metric-card">
+								<div class="metric-value">${{ totalRevenue|number_format(2) }}</div>
+								<div class="metric-label">Total Revenue</div>
+							</div>
+						</div>
+						<div class="cell medium-3">
+							<div class="dashboard-card metric-card">
+								<div class="metric-value">${{ avgOrderValue|number_format(2) }}</div>
+								<div class="metric-label">Avg Order Value</div>
+							</div>
+						</div>
+						<div class="cell medium-3">
+							<div class="dashboard-card metric-card">
+								<div class="metric-value churn-risk-{% if churnRate > 0.7 %}high{% elseif churnRate > 0.4 %}medium{% else %}low{% endif %}">
+									{{ (churnRate * 100)|number_format(1) }}%
+								</div>
+								<div class="metric-label">Churn Risk</div>
+							</div>
+						</div>
+
+						<!-- Customer Segments -->
+						<div class="cell medium-6">
+							<div class="dashboard-card">
+								<div class="card-section">
+									<h5>
+										<i class="fas fa-users"></i>
+										Customer Segments</h5>
+									<div class="grid-x grid-padding-x">
+										{% for segment in segments %}
+											<div class="cell medium-6">
+												<div class="callout">
+													<span class="segment-badge segment-{{ segment.segment }}">
+														{{ segment.segment|replace('_', ' ')|title }}
+													</span>
+													<span class="float-right">{{ segment.count }}</span>
+												</div>
+											</div>
+										{% endfor %}
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Recent Campaigns -->
+						<div class="cell medium-6">
+							<div class="dashboard-card">
+								<div class="card-section">
+									<h5>
+										<i class="fas fa-bullhorn"></i>
+										Recent Campaigns</h5>
+									{% if recentCampaigns %}
+										{% for campaign in recentCampaigns %}
+											<div class="callout small">
+												<strong>{{ campaign.name }}</strong>
+												<span class="label {{ campaign.status == 'sent' ? 'success' : 'warning' }} float-right">
+													{{ campaign.status|title }}
+												</span>
+												<br>
+												<small>{{ campaign.type|title }}
+													•
+													{{ campaign.sent_count }}
+													sent</small>
+											</div>
+										{% endfor %}
+									{% else %}
+										<p class="text-center text-muted">No campaigns yet</p>
+									{% endif %}
+								</div>
+							</div>
+						</div>
+
+						<!-- At-Risk Customers -->
+						<div class="cell">
+							<div class="dashboard-card">
+								<div class="card-section">
+									<h5>
+										<i class="fas fa-exclamation-triangle"></i>
+										At-Risk Customers</h5>
+									<div class="table-scroll">
+										<table class="hover">
+											<thead>
+												<tr>
+													<th>Customer</th>
+													<th>Email</th>
+													<th>Total Spent</th>
+													<th>Last Order</th>
+													<th>Churn Risk</th>
+													<th>Actions</th>
+												</tr>
+											</thead>
+											<tbody>
+												{% for customer in atRiskCustomers %}
+													<tr>
+														<td>{{ customer.first_name }}
+															{{ customer.last_name }}</td>
+														<td>{{ customer.email }}</td>
+														<td>${{ customer.total_spent|number_format(2) }}</td>
+														<td>{{ customer.last_order_date ?: 'Never' }}</td>
+														<td>
+															<span class="churn-risk-{% if customer.churn_risk > 0.7 %}high{% elseif customer.churn_risk > 0.4 %}medium{% else %}low{% endif %}">
+																{{ (customer.churn_risk * 100)|number_format(1) }}%
+															</span>
+														</td>
+														<td>
+															<button class="button small" onclick="createCampaign('at_risk')">
+																Create Campaign
+															</button>
+														</td>
+													</tr>
+												{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/js/foundation.min.js"></script>
+		<script>
+			$(document).foundation();
+
+function createCampaign(segment) {
+window.location.href = `/campaigns/new?segment=${segment}`;
+}
+		</script>
+	</body>
+</html>

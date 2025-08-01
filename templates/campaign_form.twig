@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>CRMAIze - Create Campaign</title>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/css/foundation.min.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+		<style>
+			.form-card {
+				background: white;
+				border-radius: 8px;
+				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+			}
+			.ai-suggestion {
+				background: #e8f4fd;
+				border-left: 4px solid #1779ba;
+				padding: 1rem;
+				margin: 1rem 0;
+			}
+			.preview-panel {
+				background: #f8f9fa;
+				border-radius: 8px;
+				padding: 1.5rem;
+			}
+			.segment-badge {
+				display: inline-block;
+				padding: 0.25rem 0.5rem;
+				border-radius: 4px;
+				font-size: 0.8rem;
+			}
+			.segment-at-risk {
+				background: #dc3545;
+				color: white;
+			}
+			.segment-loyal {
+				background: #17a2b8;
+				color: white;
+			}
+			.segment-high-value {
+				background: #28a745;
+				color: white;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="grid-container">
+			<div class="grid-x grid-padding-x">
+				<div class="cell">
+					<h2>
+						<i class="fas fa-bullhorn"></i>
+						Create New Campaign</h2>
+					<hr>
+				</div>
+
+				<div class="cell medium-8">
+					<div class="form-card">
+						<div class="card-section">
+							<form
+								id="campaignForm" method="POST" action="/campaigns">
+								<!-- Basic Campaign Info -->
+								<div class="grid-x grid-padding-x">
+									<div class="cell medium-6">
+										<label for="name">Campaign Name *
+											<input type="text" id="name" name="name" required placeholder="e.g., At-Risk Customer Recovery">
+										</label>
+									</div>
+									<div class="cell medium-6">
+										<label for="type">Campaign Type *
+											<select id="type" name="type" required>
+												<option value="">Select Type</option>
+												<option value="email">Email Campaign</option>
+												<option value="discount">Discount Campaign</option>
+											</select>
+										</label>
+									</div>
+								</div>
+
+								<!-- Target Segment -->
+								<div class="grid-x grid-padding-x">
+									<div class="cell medium-6">
+										<label for="target_segment">Target Segment
+											<select id="target_segment" name="target_segment">
+												<option value="">All Customers</option>
+												<option value="at_risk">At-Risk Customers</option>
+												<option value="loyal">Loyal Customers</option>
+												<option value="high_value">High-Value Customers</option>
+												<option value="new">New Customers</option>
+												<option value="inactive">Inactive Customers</option>
+											</select>
+										</label>
+									</div>
+									<div class="cell medium-6">
+										<label for="discount_percent" id="discount_label" style="display: none;">Discount Percentage
+											<input type="number" id="discount_percent" name="discount_percent" min="5" max="50" placeholder="e.g., 15">
+										</label>
+									</div>
+								</div>
+
+								<!-- Email Content -->
+								<div id="email_content_section" style="display: none;">
+									<label for="subject_line">Subject Line
+										<input type="text" id="subject_line" name="subject_line" placeholder="AI will suggest a subject line">
+									</label>
+
+									<label for="email_content">Email Content
+										<textarea id="email_content" name="email_content" rows="8" placeholder="Enter your email content here..."></textarea>
+									</label>
+
+									<div class="ai-suggestion">
+										<h6>
+											<i class="fas fa-robot"></i>
+											AI Suggestions</h6>
+										<p>
+											<strong>Subject Line:</strong>
+											<span id="ai_subject">Click "Generate AI Suggestions" to get personalized subject lines</span>
+										</p>
+										<p>
+											<strong>Discount:</strong>
+											<span id="ai_discount">Click "Generate AI Suggestions" to get optimal discount rates</span>
+										</p>
+										<button type="button" class="button small" onclick="generateAISuggestions()">
+											<i class="fas fa-magic"></i>
+											Generate AI Suggestions
+										</button>
+									</div>
+								</div>
+
+								<div class="grid-x grid-padding-x">
+									<div class="cell">
+										<button type="submit" class="button large expanded">
+											<i class="fas fa-save"></i>
+											Create Campaign
+										</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<!-- Preview Panel -->
+				<div class="cell medium-4">
+					<div class="preview-panel">
+						<h5>
+							<i class="fas fa-eye"></i>
+							Campaign Preview</h5>
+						<div id="preview_content">
+							<p class="text-muted">Fill out the form to see a preview of your campaign</p>
+						</div>
+
+						<hr>
+
+						<h6>
+							<i class="fas fa-users"></i>
+							Target Audience</h6>
+						<div id="audience_preview">
+							<p class="text-muted">Select a target segment to see audience details</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/js/foundation.min.js"></script>
+		<script>
+			$(document).foundation();
+
+// Show/hide fields based on campaign type
+$('#type').change(function () {
+const type = $(this).val();
+const emailSection = $('#email_content_section');
+const discountLabel = $('#discount_label');
+
+if (type === 'email') {
+emailSection.show();
+discountLabel.hide();
+} else if (type === 'discount') {
+emailSection.hide();
+discountLabel.show();
+} else {
+emailSection.hide();
+discountLabel.hide();
+} updatePreview();
+});
+
+// Update preview when form changes
+$('#campaignForm input, #campaignForm select, #campaignForm textarea').on('input change', function () {
+updatePreview();
+});
+
+function updatePreview() {
+const name = $('#name').val();
+const type = $('#type').val();
+const segment = $('#target_segment').val();
+const subject = $('#subject_line').val();
+const content = $('#email_content').val();
+const discount = $('#discount_percent').val();
+
+let preview = '';
+if (name) {
+preview += `<h6><strong>${name}</strong></h6>`;
+preview += `<p><span class="label">${
+type || 'Campaign Type'
+}</span></p>`;
+
+if (segment) {
+preview += `<p>Target: <span class="segment-badge segment-${segment}">${
+segment.replace('_', ' ')
+}</span></p>`;
+}
+
+if (type === 'email' && subject) {
+preview += `<p><strong>Subject:</strong> ${subject}</p>`;
+}
+
+if (type === 'discount' && discount) {
+preview += `<p><strong>Discount:</strong> ${discount}%</p>`;
+}
+
+if (content) {
+preview += `<p><strong>Content:</strong><br>${
+content.substring(0, 100)
+}${
+content.length > 100 ? '...' : ''
+}</p>`;
+}
+} else {
+preview = '<p class="text-muted">Fill out the form to see a preview</p>';
+}
+
+$('#preview_content').html(preview);
+updateAudiencePreview(segment);
+}
+
+function updateAudiencePreview(segment) {
+if (! segment) {
+$('#audience_preview').html('<p class="text-muted">Select a target segment to see audience details</p>');
+return;
+}
+
+// Fetch audience data via AJAX
+fetch(`/api/customers/segments`).then(response => response.json()).then(data => {
+const segmentData = data.find(s => s.segment === segment);
+if (segmentData) {
+$('#audience_preview').html(`
+                            <p><strong>${
+segmentData.count
+}</strong> customers in this segment</p>
+                            <p><span class="segment-badge segment-${segment}">${
+segment.replace('_', ' ')
+}</span></p>
+                        `);
+}
+}).catch(error => {
+$('#audience_preview').html('<p class="text-muted">Unable to load audience data</p>');
+});
+}
+
+function generateAISuggestions() {
+const type = $('#type').val();
+const segment = $('#target_segment').val();
+
+if (! type) {
+alert('Please select a campaign type first');
+return;
+}
+
+// Simulate AI suggestions (in real app, this would call the AI service)
+const suggestions = {
+email: {
+subjects: [
+"Hey there, we miss you!", "Don't miss out on these exclusive offers", "Special savings just for you", "We have something special for you"
+],
+discounts: [15, 20, 25]
+},
+discount: {
+subjects: [
+"Your exclusive discount awaits!", "Special savings just for you", "Don't miss these deals!", "Limited time offer for you"
+],
+discounts: [20, 25, 30]
+}
+};
+
+const typeSuggestions = suggestions[type] || suggestions.email;
+const randomSubject = typeSuggestions.subjects[Math.floor(Math.random() * typeSuggestions.subjects.length)];
+const randomDiscount = typeSuggestions.discounts[Math.floor(Math.random() * typeSuggestions.discounts.length)];
+
+$('#ai_subject').text(randomSubject);
+$('#ai_discount').text(randomDiscount + '%');
+
+// Auto-fill the form with AI suggestions
+$('#subject_line').val(randomSubject);
+$('#discount_percent').val(randomDiscount);
+
+updatePreview();
+}
+
+// Set segment from URL parameter
+const urlParams = new URLSearchParams(window.location.search);
+const segment = urlParams.get('segment');
+if (segment) {
+$('#target_segment').val(segment);
+updatePreview();
+}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,59 @@
+# PHP
+/vendor/
+*.log
+*.lock
+*.cache
+*.tmp
+*.swp
+
+# Configuration
+.env
+.env.local
+config/database.php
+config/config.php
+
+# Cache and Sessions
+cache/
+sessions/
+storage/
+tmp/
+*.bak
+
+# Composer
+composer.lock
+composer.phar
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.DS_Store
+
+# OS-specific
+Thumbs.db
+.DS_Store
+
+# Node.js (if used for frontend assets)
+/node_modules/
+package-lock.json
+yarn.lock
+dist/
+build/
+
+# Twig compiled templates (if any)
+twig-cache/
+
+# Database dumps/backups
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+
+# Web Workers (optional transpiled)
+*.worker.js.map
+*.worker.temp.js
+
+# Optional: ignore uploaded data/sample files
+data/*.json
+uploads/
