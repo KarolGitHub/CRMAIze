@@ -162,7 +162,11 @@
 											<div class="cell medium-6">
 												<div class="callout">
 													<span class="segment-badge segment-{{ segment.segment }}">
-														{{ segment.segment|replace('_', ' ')|title }}
+														{% if segment.segment %}
+															{{ segment.segment|replace({'_': ' '})|title }}
+														{% else %}
+															Unknown
+														{% endif %}
 													</span>
 													<span class="float-right">{{ segment.count }}</span>
 												</div>

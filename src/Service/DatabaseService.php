@@ -17,9 +17,16 @@ class DatabaseService
 
   private function connect(): void
   {
-    $dsn = $_ENV['DB_DSN'] ?? 'sqlite:' . __DIR__ . '/../../data/crmaize.db';
+    // Use absolute path to the database file
+    $dsn = $_ENV['DB_DSN'] ?? 'sqlite:C:/Users/karol/Documents/dev/projects/crmaize/data/crmaize.db';
     $username = $_ENV['DB_USERNAME'] ?? '';
     $password = $_ENV['DB_PASSWORD'] ?? '';
+
+    // Ensure the data directory exists
+    $dataDir = 'C:/Users/karol/Documents/dev/projects/crmaize/data';
+    if (!is_dir($dataDir)) {
+      mkdir($dataDir, 0755, true);
+    }
 
     try {
       $this->pdo = new PDO($dsn, $username, $password, [
@@ -51,12 +58,12 @@ class DatabaseService
             CREATE TABLE IF NOT EXISTS campaigns (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name VARCHAR(255) NOT NULL,
-                type ENUM('email', 'discount') NOT NULL,
+                type VARCHAR(20) NOT NULL CHECK (type IN ('email', 'discount')),
                 target_segment VARCHAR(50),
                 discount_percent INTEGER,
                 subject_line VARCHAR(255),
                 email_content TEXT,
-                status ENUM('draft', 'sent', 'cancelled') DEFAULT 'draft',
+                status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'sent', 'cancelled')),
                 sent_count INTEGER DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
@@ -65,7 +72,7 @@ class DatabaseService
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 campaign_id INTEGER,
                 customer_id INTEGER,
-                status ENUM('sent', 'opened', 'clicked', 'bounced') DEFAULT 'sent',
+                status VARCHAR(20) DEFAULT 'sent' CHECK (status IN ('sent', 'opened', 'clicked', 'bounced')),
                 sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (campaign_id) REFERENCES campaigns(id),
                 FOREIGN KEY (customer_id) REFERENCES customers(id)
