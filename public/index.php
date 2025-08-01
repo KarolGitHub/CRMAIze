@@ -7,6 +7,7 @@ use CRMAIze\Core\Router;
 use CRMAIze\Controller\DashboardController;
 use CRMAIze\Controller\ApiController;
 use CRMAIze\Controller\CampaignController;
+use CRMAIze\Controller\AuthController;
 
 // Load environment variables
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
@@ -18,18 +19,25 @@ $app = new Application();
 // Set up routing
 $router = new Router();
 
-// Dashboard routes
+// Auth routes
+$router->get('/login', [AuthController::class, 'showLogin']);
+$router->post('/login', [AuthController::class, 'login']);
+$router->get('/logout', [AuthController::class, 'logout']);
+$router->get('/register', [AuthController::class, 'showRegister']);
+$router->post('/register', [AuthController::class, 'register']);
+
+// Dashboard routes (protected)
 $router->get('/', [DashboardController::class, 'index']);
 $router->get('/dashboard', [DashboardController::class, 'index']);
 
-// Campaign routes
+// Campaign routes (protected)
 $router->get('/campaigns', [CampaignController::class, 'index']);
 $router->get('/campaigns/new', [CampaignController::class, 'create']);
 $router->post('/campaigns', [CampaignController::class, 'store']);
 $router->get('/campaigns/{id}', [CampaignController::class, 'show']);
 $router->post('/campaigns/{id}/send', [CampaignController::class, 'send']);
 
-// API routes
+// API routes (protected)
 $router->get('/api/customers', [ApiController::class, 'getCustomers']);
 $router->get('/api/customers/segments', [ApiController::class, 'getSegments']);
 $router->get('/api/campaigns', [ApiController::class, 'getCampaigns']);

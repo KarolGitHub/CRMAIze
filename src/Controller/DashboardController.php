@@ -23,6 +23,9 @@ class DashboardController
 
   public function index(Request $request): Response
   {
+    // Require authentication
+    $this->app->getAuthService()->requireAuth();
+
     // Get dashboard data
     $totalCustomers = $this->customerRepo->getTotalCount();
     $segments = $this->customerRepo->getSegmentCounts();

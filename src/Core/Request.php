@@ -59,4 +59,12 @@ class Request
   {
     return $this->method === 'GET';
   }
+
+  public function getInput(string $key, $default = null)
+  {
+    if ($this->isPost()) {
+      return $this->post($key, $default);
+    }
+    return $this->get($key, $default);
+  }
 }

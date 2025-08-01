@@ -6,12 +6,15 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use CRMAIze\Service\DatabaseService;
 use CRMAIze\Service\AIService;
+use CRMAIze\Service\AuthService;
+use CRMAIze\Repository\UserRepository;
 
 class Application
 {
   private $twig;
   private $database;
   private $aiService;
+  private $authService;
 
   public function __construct()
   {
@@ -33,6 +36,10 @@ class Application
 
     // Initialize AI Service
     $this->aiService = new AIService();
+
+    // Initialize Auth Service
+    $userRepository = new UserRepository($this->database);
+    $this->authService = new AuthService($userRepository);
   }
 
   public function handle(Router $router)
@@ -69,5 +76,10 @@ class Application
   public function getAIService(): AIService
   {
     return $this->aiService;
+  }
+
+  public function getAuthService(): AuthService
+  {
+    return $this->authService;
   }
 }

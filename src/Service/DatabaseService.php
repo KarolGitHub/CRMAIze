@@ -42,6 +42,17 @@ class DatabaseService
   private function createTables(): void
   {
     $sql = "
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username VARCHAR(50) UNIQUE NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password_hash VARCHAR(255) NOT NULL,
+                role VARCHAR(20) DEFAULT 'marketer' CHECK (role IN ('admin', 'marketer')),
+                is_active BOOLEAN DEFAULT 1,
+                last_login TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
             CREATE TABLE IF NOT EXISTS customers (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 email VARCHAR(255) UNIQUE NOT NULL,
@@ -65,7 +76,9 @@ class DatabaseService
                 email_content TEXT,
                 status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'sent', 'cancelled')),
                 sent_count INTEGER DEFAULT 0,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_by INTEGER,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (created_by) REFERENCES users(id)
             );
 
             CREATE TABLE IF NOT EXISTS campaign_logs (
