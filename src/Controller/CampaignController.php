@@ -57,6 +57,31 @@ class CampaignController
 
     $campaignId = $this->campaignRepo->create($data);
 
+    // Handle A/B testing variants
+    if (!empty($data['enable_ab_test']) && $data['enable_ab_test'] === '1') {
+      $variantCount = (int) ($data['variant_count'] ?? 2);
+      $sampleCustomer = $this->customerRepo->getAll()[0] ?? [];
+      $variants = $this->app->getAIService()->generateABTestVariants($data['type'], $sampleCustomer, $variantCount);
+
+      foreach ($variants as $variant) {
+        $variant['campaign_id'] = $campaignId;
+        $this->campaignRepo->createVariant($variant);
+      }
+    }
+
+    // Handle scheduling
+    if (!empty($data['schedule_type']) && $data['schedule_type'] !== 'immediate') {
+      $scheduler = $this->app->getCampaignScheduler();
+
+      if ($data['schedule_type'] === 'optimal') {
+        $sampleCustomer = $this->customerRepo->getAll()[0] ?? [];
+        $optimalTime = $this->app->getAIService()->suggestOptimalSendTime($sampleCustomer);
+        $scheduler->scheduleCampaign($campaignId, 'scheduled', $optimalTime, $data['timezone'] ?? 'UTC');
+      } elseif ($data['schedule_type'] === 'scheduled' && !empty($data['scheduled_at'])) {
+        $scheduler->scheduleCampaign($campaignId, 'scheduled', $data['scheduled_at'], $data['timezone'] ?? 'UTC');
+      }
+    }
+
     // Redirect to campaign list
     header('Location: /campaigns');
     exit;

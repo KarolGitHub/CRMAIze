@@ -109,4 +109,95 @@ class CampaignRepository
   {
     return $this->db->execute("DELETE FROM campaigns WHERE id = ?", [$id]);
   }
+
+  public function updateScheduledAt(int $id, string $scheduledAt): bool
+  {
+    return $this->db->execute(
+      "UPDATE campaigns SET scheduled_at = ? WHERE id = ?",
+      [$scheduledAt, $id]
+    );
+  }
+
+  public function updateSentAt(int $id, string $sentAt): bool
+  {
+    return $this->db->execute(
+      "UPDATE campaigns SET sent_at = ? WHERE id = ?",
+      [$sentAt, $id]
+    );
+  }
+
+  public function createSchedule(array $data): bool
+  {
+    return $this->db->execute(
+      "INSERT INTO campaign_schedules (campaign_id, schedule_type, scheduled_at, timezone, is_active) VALUES (?, ?, ?, ?, ?)",
+      [
+        $data['campaign_id'],
+        $data['schedule_type'],
+        $data['scheduled_at'] ?? null,
+        $data['timezone'],
+        $data['is_active']
+      ]
+    );
+  }
+
+  public function getScheduledCampaigns(string $currentTime): array
+  {
+    return $this->db->query(
+      "SELECT c.* FROM campaigns c
+       INNER JOIN campaign_schedules cs ON c.id = cs.campaign_id
+       WHERE c.status = 'scheduled' AND cs.scheduled_at <= ? AND cs.is_active = 1",
+      [$currentTime]
+    );
+  }
+
+  public function getUpcomingScheduledCampaigns(): array
+  {
+    return $this->db->query(
+      "SELECT c.*, cs.scheduled_at, cs.timezone FROM campaigns c
+       INNER JOIN campaign_schedules cs ON c.id = cs.campaign_id
+       WHERE c.status = 'scheduled' AND cs.scheduled_at > datetime('now') AND cs.is_active = 1
+       ORDER BY cs.scheduled_at ASC"
+    );
+  }
+
+  public function deactivateSchedule(int $campaignId): bool
+  {
+    return $this->db->execute(
+      "UPDATE campaign_schedules SET is_active = 0 WHERE campaign_id = ?",
+      [$campaignId]
+    );
+  }
+
+  public function logCampaignSend(int $campaignId, int $customerId): bool
+  {
+    return $this->db->execute(
+      "INSERT INTO campaign_logs (campaign_id, customer_id, status) VALUES (?, ?, 'sent')",
+      [$campaignId, $customerId]
+    );
+  }
+
+  public function createVariant(array $data): int
+  {
+    $this->db->execute(
+      "INSERT INTO campaign_variants (campaign_id, variant_name, subject_line, email_content, discount_percent, is_control) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        $data['campaign_id'],
+        $data['variant_name'],
+        $data['subject_line'] ?? null,
+        $data['email_content'] ?? null,
+        $data['discount_percent'] ?? null,
+        $data['is_control'] ?? 0
+      ]
+    );
+
+    return (int) $this->db->lastInsertId();
+  }
+
+  public function getVariants(int $campaignId): array
+  {
+    return $this->db->query(
+      "SELECT * FROM campaign_variants WHERE campaign_id = ? ORDER BY is_control DESC, created_at ASC",
+      [$campaignId]
+    );
+  }
 }

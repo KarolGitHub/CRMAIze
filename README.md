@@ -159,8 +159,8 @@ DB_PASSWORD=your_password
 ### 🚧 Roadmap (Next Priorities)
 
 - **User Authentication & Roles:** ✅ Completed - Login system and role-based access implemented
-- **Real Email Integration:** 🔄 In Progress - Integrating SMTP for actual email sending
-- **Enhanced Campaign Features:** ⏳ Planned - Scheduling, A/B testing, advanced AI suggestions
+- **Real Email Integration:** ✅ Completed - SMTP integration with PHPMailer implemented
+- **Enhanced Campaign Features:** 🔄 In Progress - Adding scheduling, A/B testing, and advanced AI
 - **Data Import/Export:** ⏳ Planned - CSV import/export for customer data and campaigns
 - **Advanced Analytics:** ⏳ Planned - PDF reports and data visualization charts
 - **Mobile UI & PWA:** ⏳ Planned - Mobile-friendly enhancements and progressive web app support

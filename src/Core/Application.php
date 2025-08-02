@@ -8,7 +8,10 @@ use CRMAIze\Service\DatabaseService;
 use CRMAIze\Service\AIService;
 use CRMAIze\Service\AuthService;
 use CRMAIze\Service\EmailService;
+use CRMAIze\Service\CampaignScheduler;
 use CRMAIze\Repository\UserRepository;
+use CRMAIze\Repository\CampaignRepository;
+use CRMAIze\Repository\CustomerRepository;
 
 class Application
 {
@@ -17,6 +20,7 @@ class Application
   private $aiService;
   private $authService;
   private $emailService;
+  private $campaignScheduler;
 
   public function __construct()
   {
@@ -45,6 +49,11 @@ class Application
 
     // Initialize Email Service
     $this->emailService = new EmailService();
+
+    // Initialize Campaign Scheduler
+    $campaignRepo = new CampaignRepository($this->database);
+    $customerRepo = new CustomerRepository($this->database);
+    $this->campaignScheduler = new CampaignScheduler($campaignRepo, $customerRepo, $this->emailService);
   }
 
   public function handle(Router $router)
@@ -91,5 +100,10 @@ class Application
   public function getEmailService(): EmailService
   {
     return $this->emailService;
+  }
+
+  public function getCampaignScheduler(): CampaignScheduler
+  {
+    return $this->campaignScheduler;
   }
 }

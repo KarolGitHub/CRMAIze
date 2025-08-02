@@ -74,11 +74,37 @@ class DatabaseService
                 discount_percent INTEGER,
                 subject_line VARCHAR(255),
                 email_content TEXT,
-                status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'sent', 'cancelled')),
+                status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'scheduled', 'sent', 'cancelled')),
                 sent_count INTEGER DEFAULT 0,
                 created_by INTEGER,
+                scheduled_at TIMESTAMP,
+                sent_at TIMESTAMP,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (created_by) REFERENCES users(id)
+            );
+
+            CREATE TABLE IF NOT EXISTS campaign_variants (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                campaign_id INTEGER,
+                variant_name VARCHAR(50) NOT NULL,
+                subject_line VARCHAR(255),
+                email_content TEXT,
+                discount_percent INTEGER,
+                is_control BOOLEAN DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
+            );
+
+            CREATE TABLE IF NOT EXISTS campaign_schedules (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                campaign_id INTEGER,
+                schedule_type VARCHAR(20) NOT NULL CHECK (schedule_type IN ('immediate', 'scheduled', 'recurring')),
+                scheduled_at TIMESTAMP,
+                timezone VARCHAR(50) DEFAULT 'UTC',
+                recurrence_pattern VARCHAR(100),
+                is_active BOOLEAN DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
             );
 
             CREATE TABLE IF NOT EXISTS campaign_logs (

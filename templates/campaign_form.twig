@@ -124,6 +124,65 @@
 											Generate AI Suggestions
 										</button>
 									</div>
+
+									<!-- A/B Testing Section -->
+									<div class="ai-suggestion">
+										<h6>
+											<i class="fas fa-flask"></i>
+											A/B Testing</h6>
+										<label>
+											<input type="checkbox" id="enable_ab_test" name="enable_ab_test" value="1">
+											Enable A/B Testing
+										</label>
+										<div id="ab_test_options" style="display: none; margin-top: 15px;">
+											<div class="grid-x grid-padding-x">
+												<div class="cell medium-6">
+													<label for="variant_count">Number of Variants</label>
+													<select id="variant_count" name="variant_count" class="form-control">
+														<option value="2">2 Variants (Control + 1 Test)</option>
+														<option value="3">3 Variants (Control + 2 Tests)</option>
+														<option value="4">4 Variants (Control + 3 Tests)</option>
+													</select>
+												</div>
+												<div class="cell medium-6">
+													<label for="test_duration">Test Duration (hours)</label>
+													<input type="number" id="test_duration" name="test_duration" class="form-control" value="24" min="1" max="168">
+												</div>
+											</div>
+											<small class="form-text text-muted">A/B testing will send different versions to a small audience first, then send the best performing version to the full audience.</small>
+										</div>
+									</div>
+
+									<!-- Scheduling Section -->
+									<div class="ai-suggestion">
+										<h6>
+											<i class="fas fa-clock"></i>
+											Send Schedule</h6>
+										<div class="grid-x grid-padding-x">
+											<div class="cell medium-6">
+												<label for="schedule_type">Schedule Type</label>
+												<select id="schedule_type" name="schedule_type" class="form-control">
+													<option value="immediate">Send Immediately</option>
+													<option value="scheduled">Schedule for Later</option>
+													<option value="optimal">AI-Optimized Time</option>
+												</select>
+											</div>
+											<div class="cell medium-6">
+												<label for="timezone">Timezone</label>
+												<select id="timezone" name="timezone" class="form-control">
+													<option value="UTC">UTC</option>
+													<option value="America/New_York">Eastern Time</option>
+													<option value="America/Chicago">Central Time</option>
+													<option value="America/Denver">Mountain Time</option>
+													<option value="America/Los_Angeles">Pacific Time</option>
+												</select>
+											</div>
+										</div>
+										<div id="scheduled_options" style="display: none; margin-top: 15px;">
+											<label for="scheduled_at">Scheduled Date & Time</label>
+											<input type="datetime-local" id="scheduled_at" name="scheduled_at" class="form-control">
+										</div>
+									</div>
 								</div>
 
 								<div class="grid-x grid-padding-x">
@@ -303,6 +362,30 @@ if (segment) {
 $('#target_segment').val(segment);
 updatePreview();
 }
+
+// A/B Testing toggle
+$('#enable_ab_test').change(function() {
+if ($(this).is(':checked')) {
+$('#ab_test_options').show();
+} else {
+$('#ab_test_options').hide();
+}
+});
+
+// Scheduling options
+$('#schedule_type').change(function() {
+const scheduleType = $(this).val();
+if (scheduleType === 'scheduled') {
+$('#scheduled_options').show();
+} else {
+$('#scheduled_options').hide();
+}
+});
+
+// Set default datetime-local value to current time + 1 hour
+const now = new Date();
+now.setHours(now.getHours() + 1);
+$('#scheduled_at').val(now.toISOString().slice(0, 16));
 		</script>
 	</body>
 </html>
