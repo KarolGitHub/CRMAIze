@@ -7,6 +7,7 @@ use Twig\Loader\FilesystemLoader;
 use CRMAIze\Service\DatabaseService;
 use CRMAIze\Service\AIService;
 use CRMAIze\Service\AuthService;
+use CRMAIze\Service\EmailService;
 use CRMAIze\Repository\UserRepository;
 
 class Application
@@ -15,6 +16,7 @@ class Application
   private $database;
   private $aiService;
   private $authService;
+  private $emailService;
 
   public function __construct()
   {
@@ -40,6 +42,9 @@ class Application
     // Initialize Auth Service
     $userRepository = new UserRepository($this->database);
     $this->authService = new AuthService($userRepository);
+
+    // Initialize Email Service
+    $this->emailService = new EmailService();
   }
 
   public function handle(Router $router)
@@ -81,5 +86,10 @@ class Application
   public function getAuthService(): AuthService
   {
     return $this->authService;
+  }
+
+  public function getEmailService(): EmailService
+  {
+    return $this->emailService;
   }
 }

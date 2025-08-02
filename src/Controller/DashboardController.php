@@ -44,7 +44,8 @@ class DashboardController
       'churnRate' => $churnRate,
       'segments' => $segments,
       'recentCampaigns' => $recentCampaigns,
-      'atRiskCustomers' => $atRiskCustomers
+      'atRiskCustomers' => $atRiskCustomers,
+      'user' => $this->app->getAuthService()->getCurrentUser()
     ];
 
     $html = $this->app->getTwig()->render('dashboard.twig', $data);

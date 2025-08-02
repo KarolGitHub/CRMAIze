@@ -93,20 +93,48 @@ class CampaignController
       return new Response('Campaign not found', 404);
     }
 
+    // Check if email service is configured
+    $emailService = $this->app->getEmailService();
+    if (!$emailService->isConfigured()) {
+      return Response::json([
+        'success' => false,
+        'message' => 'Email service not configured. Please configure SMTP settings in .env file.'
+      ]);
+    }
+
     // Get target customers
     $customers = [];
     if ($campaign['target_segment']) {
       $customers = $this->customerRepo->getBySegment($campaign['target_segment']);
     }
 
-    // Simulate sending emails
+    // Send real emails
     $sentCount = 0;
-    foreach ($customers as $customer) {
-      // In a real application, this would send actual emails
-      $sentCount++;
+    $failedCount = 0;
+    $errors = [];
 
-      // Log the campaign send
-      $this->logCampaignSend((int) $id, $customer['id']);
+    foreach ($customers as $customer) {
+      try {
+        // Send real email
+        $success = $emailService->sendCampaignEmail(
+          $customer['email'],
+          $campaign['subject_line'],
+          $campaign['email_content'],
+          $customer
+        );
+
+        if ($success) {
+          $sentCount++;
+          // Log the campaign send
+          $this->logCampaignSend((int) $id, $customer['id']);
+        } else {
+          $failedCount++;
+          $errors[] = "Failed to send to: " . $customer['email'];
+        }
+      } catch (\Exception $e) {
+        $failedCount++;
+        $errors[] = "Error sending to " . $customer['email'] . ": " . $e->getMessage();
+      }
     }
 
     // Update campaign status and sent count
@@ -118,7 +146,9 @@ class CampaignController
     return Response::json([
       'success' => true,
       'sent_count' => $sentCount,
-      'message' => "Campaign sent to {$sentCount} customers"
+      'failed_count' => $failedCount,
+      'message' => "Campaign completed. Sent: $sentCount, Failed: $failedCount",
+      'errors' => $errors
     ]);
   }
 

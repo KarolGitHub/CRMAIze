@@ -8,6 +8,7 @@ use CRMAIze\Controller\DashboardController;
 use CRMAIze\Controller\ApiController;
 use CRMAIze\Controller\CampaignController;
 use CRMAIze\Controller\AuthController;
+use CRMAIze\Controller\EmailSettingsController;
 
 // Load environment variables
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
@@ -25,6 +26,11 @@ $router->post('/login', [AuthController::class, 'login']);
 $router->get('/logout', [AuthController::class, 'logout']);
 $router->get('/register', [AuthController::class, 'showRegister']);
 $router->post('/register', [AuthController::class, 'register']);
+
+// Email settings routes (admin only)
+$router->get('/email-settings', [EmailSettingsController::class, 'index']);
+$router->post('/email-settings', [EmailSettingsController::class, 'index']);
+$router->post('/email-settings/test', [EmailSettingsController::class, 'testConnection']);
 
 // Dashboard routes (protected)
 $router->get('/', [DashboardController::class, 'index']);

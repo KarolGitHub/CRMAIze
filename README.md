@@ -158,8 +158,8 @@ DB_PASSWORD=your_password
 
 ### 🚧 Roadmap (Next Priorities)
 
-- **User Authentication & Roles:** 🔄 In Progress - Add login system and role-based access (admin, marketer)
-- **Real Email Integration:** ⏳ Planned - Integrate SMTP for actual email sending
+- **User Authentication & Roles:** ✅ Completed - Login system and role-based access implemented
+- **Real Email Integration:** 🔄 In Progress - Integrating SMTP for actual email sending
 - **Enhanced Campaign Features:** ⏳ Planned - Scheduling, A/B testing, advanced AI suggestions
 - **Data Import/Export:** ⏳ Planned - CSV import/export for customer data and campaigns
 - **Advanced Analytics:** ⏳ Planned - PDF reports and data visualization charts
