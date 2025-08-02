@@ -9,6 +9,7 @@ use CRMAIze\Controller\ApiController;
 use CRMAIze\Controller\CampaignController;
 use CRMAIze\Controller\AuthController;
 use CRMAIze\Controller\EmailSettingsController;
+use CRMAIze\Controller\DataImportExportController;
 
 // Load environment variables
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
@@ -49,6 +50,15 @@ $router->get('/api/customers/segments', [ApiController::class, 'getSegments']);
 $router->get('/api/campaigns', [ApiController::class, 'getCampaigns']);
 $router->post('/api/campaigns', [ApiController::class, 'createCampaign']);
 $router->get('/api/analytics', [ApiController::class, 'getAnalytics']);
+
+// Data Import/Export routes (protected)
+$router->get('/data-import-export', [DataImportExportController::class, 'index']);
+$router->get('/export/customers', [DataImportExportController::class, 'exportCustomers']);
+$router->get('/export/campaigns', [DataImportExportController::class, 'exportCampaigns']);
+$router->post('/import/customers', [DataImportExportController::class, 'importCustomers']);
+$router->post('/import/campaigns', [DataImportExportController::class, 'importCampaigns']);
+$router->get('/download/template/customers', [DataImportExportController::class, 'downloadCustomerTemplate']);
+$router->get('/download/template/campaigns', [DataImportExportController::class, 'downloadCampaignTemplate']);
 
 // Handle the request
 $app->handle($router);

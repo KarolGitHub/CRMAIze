@@ -102,4 +102,16 @@ class CustomerRepository
 
     return (int) $this->db->lastInsertId();
   }
+
+  public function findByEmail(string $email): ?array
+  {
+    $result = $this->db->query("SELECT * FROM customers WHERE email = ?", [$email]);
+    return $result ? $result[0] : null;
+  }
+
+  public function findById(int $id): ?array
+  {
+    $result = $this->db->query("SELECT * FROM customers WHERE id = ?", [$id]);
+    return $result ? $result[0] : null;
+  }
 }

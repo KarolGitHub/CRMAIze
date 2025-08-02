@@ -54,4 +54,16 @@ class Response
   {
     return $this->headers;
   }
+
+  public function setContent($content): self
+  {
+    $this->content = $content;
+    return $this;
+  }
+
+  public function setHeader(string $name, string $value): self
+  {
+    $this->headers[$name] = $value;
+    return $this;
+  }
 }

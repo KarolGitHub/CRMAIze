@@ -9,6 +9,7 @@ use CRMAIze\Service\AIService;
 use CRMAIze\Service\AuthService;
 use CRMAIze\Service\EmailService;
 use CRMAIze\Service\CampaignScheduler;
+use CRMAIze\Service\DataImportExportService;
 use CRMAIze\Repository\UserRepository;
 use CRMAIze\Repository\CampaignRepository;
 use CRMAIze\Repository\CustomerRepository;
@@ -21,6 +22,7 @@ class Application
   private $authService;
   private $emailService;
   private $campaignScheduler;
+  private $dataImportExportService;
 
   public function __construct()
   {
@@ -54,6 +56,9 @@ class Application
     $campaignRepo = new CampaignRepository($this->database);
     $customerRepo = new CustomerRepository($this->database);
     $this->campaignScheduler = new CampaignScheduler($campaignRepo, $customerRepo, $this->emailService);
+
+    // Initialize Data Import/Export Service
+    $this->dataImportExportService = new DataImportExportService($customerRepo, $campaignRepo, $userRepository);
   }
 
   public function handle(Router $router)
@@ -105,5 +110,10 @@ class Application
   public function getCampaignScheduler(): CampaignScheduler
   {
     return $this->campaignScheduler;
+  }
+
+  public function getDataImportExportService(): DataImportExportService
+  {
+    return $this->dataImportExportService;
   }
 }
