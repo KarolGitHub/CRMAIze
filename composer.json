@@ -27,6 +27,26 @@
       "mkdir -p public/assets/js",
       "mkdir -p templates/emails",
       "mkdir -p cache"
+    ],
+    "dev": [
+      "php -S localhost:8000 -t public"
+    ],
+    "serve": [
+      "php -S localhost:8000 -t public"
+    ],
+    "install-dev": [
+      "php scripts/install.php",
+      "php scripts/setup_users.php",
+      "php scripts/import_data.php"
+    ],
+    "fresh": [
+      "@install-dev"
+    ],
+    "test": [
+      "php scripts/import_data.php"
+    ],
+    "schedule": [
+      "php scripts/process_scheduled_campaigns.php"
     ]
   }
 }

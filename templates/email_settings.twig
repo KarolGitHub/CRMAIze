@@ -1,172 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRMAIze - Email Settings</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/css/foundation.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .status-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-        .status-configured { background-color: #28a745; }
-        .status-not-configured { background-color: #dc3545; }
-        .config-section {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .test-result {
-            padding: 1rem;
-            border-radius: 4px;
-            margin-top: 1rem;
-        }
-        .test-success {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-        }
-        .test-error {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-        }
-        .env-help {
-            background: #e2e3e5;
-            border: 1px solid #d6d8db;
-            border-radius: 4px;
-            padding: 1rem;
-            margin-top: 1rem;
-            font-family: monospace;
-            font-size: 0.9rem;
-        }
-    </style>
-</head>
-<body>
-    <div class="grid-container">
-        <div class="grid-x grid-padding-x">
-            <div class="cell">
-                <h1><i class="fas fa-envelope"></i> Email Settings</h1>
-                <p class="lead">Configure SMTP settings for sending campaign emails</p>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>CRMAIze - Email Settings</title>
 
-                <!-- Configuration Status -->
-                <div class="config-section">
-                    <h3>
-                        <span class="status-indicator {% if config.configured %}status-configured{% else %}status-not-configured{% endif %}"></span>
-                        Configuration Status
-                    </h3>
+		<!-- Favicon -->
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+		<link rel="icon" type="image/x-icon" href="/favicon.ico">
+		<link rel="apple-touch-icon" href="/favicon.svg">
 
-                    {% if config.configured %}
-                        <div class="callout success">
-                            <h5><i class="fas fa-check-circle"></i> SMTP Configured</h5>
-                            <p>Your email service is properly configured and ready to send campaigns.</p>
-                        </div>
-                    {% else %}
-                        <div class="callout alert">
-                            <h5><i class="fas fa-exclamation-triangle"></i> SMTP Not Configured</h5>
-                            <p>Please configure your SMTP settings in the .env file to enable email sending.</p>
-                        </div>
-                    {% endif %}
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/css/foundation.min.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+		<style>
+			.status-indicator {
+				display: inline-block;
+				width: 12px;
+				height: 12px;
+				border-radius: 50%;
+				margin-right: 8px;
+			}
+			.status-configured {
+				background-color: #28a745;
+			}
+			.status-not-configured {
+				background-color: #dc3545;
+			}
+			.config-section {
+				background: #f8f9fa;
+				border: 1px solid #e9ecef;
+				border-radius: 8px;
+				padding: 1.5rem;
+				margin-bottom: 1.5rem;
+			}
+			.test-result {
+				padding: 1rem;
+				border-radius: 4px;
+				margin-top: 1rem;
+			}
+			.test-success {
+				background: #d4edda;
+				border: 1px solid #c3e6cb;
+				color: #155724;
+			}
+			.test-error {
+				background: #f8d7da;
+				border: 1px solid #f5c6cb;
+				color: #721c24;
+			}
+			.env-help {
+				background: #e2e3e5;
+				border: 1px solid #d6d8db;
+				border-radius: 4px;
+				padding: 1rem;
+				margin-top: 1rem;
+				font-family: monospace;
+				font-size: 0.9rem;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="grid-container">
+			<div class="grid-x grid-padding-x">
+				<div class="cell">
+					<h1>
+						<i class="fas fa-envelope"></i>
+						Email Settings</h1>
+					<p class="lead">Configure SMTP settings for sending campaign emails</p>
 
-                    <div class="grid-x grid-padding-x">
-                        <div class="cell medium-6">
-                            <strong>SMTP Host:</strong> {{ config.smtp_host }}<br>
-                            <strong>SMTP Port:</strong> {{ config.smtp_port }}<br>
-                            <strong>Encryption:</strong> {{ config.smtp_encryption }}
-                        </div>
-                        <div class="cell medium-6">
-                            <strong>Username:</strong> {{ config.smtp_username }}<br>
-                            <strong>From Address:</strong> {{ config.from_address }}<br>
-                            <strong>From Name:</strong> {{ config.from_name }}
-                        </div>
-                    </div>
-                </div>
+					<!-- Configuration Status -->
+					<div class="config-section">
+						<h3>
+							<span class="status-indicator {% if config.configured %}status-configured{% else %}status-not-configured{% endif %}"></span>
+							Configuration Status
+						</h3>
 
-                <!-- Test Connection -->
-                <div class="config-section">
-                    <h3><i class="fas fa-plug"></i> Test Connection</h3>
-                    <p>Test your SMTP configuration to ensure emails can be sent successfully.</p>
+						{% if config.configured %}
+							<div class="callout success">
+								<h5>
+									<i class="fas fa-check-circle"></i>
+									SMTP Configured</h5>
+								<p>Your email service is properly configured and ready to send campaigns.</p>
+							</div>
+						{% else %}
+							<div class="callout alert">
+								<h5>
+									<i class="fas fa-exclamation-triangle"></i>
+									SMTP Not Configured</h5>
+								<p>Please configure your SMTP settings in the .env file to enable email sending.</p>
+							</div>
+						{% endif %}
 
-                    <form method="POST" action="/email-settings">
-                        <input type="hidden" name="action" value="test">
-                        <button type="submit" class="button primary">
-                            <i class="fas fa-play"></i> Test SMTP Connection
-                        </button>
-                    </form>
+						<div class="grid-x grid-padding-x">
+							<div class="cell medium-6">
+								<strong>SMTP Host:</strong>
+								{{ config.smtp_host }}<br>
+								<strong>SMTP Port:</strong>
+								{{ config.smtp_port }}<br>
+								<strong>Encryption:</strong>
+								{{ config.smtp_encryption }}
+							</div>
+							<div class="cell medium-6">
+								<strong>Username:</strong>
+								{{ config.smtp_username }}<br>
+								<strong>From Address:</strong>
+								{{ config.from_address }}<br>
+								<strong>From Name:</strong>
+								{{ config.from_name }}
+							</div>
+						</div>
+					</div>
 
-                    {% if testResult %}
-                        <div class="test-result {% if testResult.success %}test-success{% else %}test-error{% endif %}">
-                            <h5>
-                                {% if testResult.success %}
-                                    <i class="fas fa-check-circle"></i> Connection Successful
-                                {% else %}
-                                    <i class="fas fa-times-circle"></i> Connection Failed
-                                {% endif %}
-                            </h5>
-                            <p>{{ testResult.message }}</p>
-                        </div>
-                    {% endif %}
-                </div>
+					<!-- Test Connection -->
+					<div class="config-section">
+						<h3>
+							<i class="fas fa-plug"></i>
+							Test Connection</h3>
+						<p>Test your SMTP configuration to ensure emails can be sent successfully.</p>
 
-                <!-- Configuration Help -->
-                <div class="config-section">
-                    <h3><i class="fas fa-question-circle"></i> Configuration Help</h3>
-                    <p>Add the following variables to your <code>.env</code> file:</p>
+						<form method="POST" action="/email-settings">
+							<input type="hidden" name="action" value="test">
+							<button type="submit" class="button primary">
+								<i class="fas fa-play"></i>
+								Test SMTP Connection
+							</button>
+						</form>
 
-                    <div class="env-help">
-# SMTP Configuration<br>
-SMTP_HOST=smtp.gmail.com<br>
-SMTP_PORT=587<br>
-SMTP_USERNAME=your-email@gmail.com<br>
-SMTP_PASSWORD=your-app-password<br>
-SMTP_ENCRYPTION=tls<br>
-<br>
-# Email Settings<br>
-MAIL_FROM_ADDRESS=your-email@gmail.com<br>
-MAIL_FROM_NAME=Your Company Name
-                    </div>
+						{% if testResult %}
+							<div class="test-result {% if testResult.success %}test-success{% else %}test-error{% endif %}">
+								<h5>
+									{% if testResult.success %}
+										<i class="fas fa-check-circle"></i>
+										Connection Successful
+									{% else %}
+										<i class="fas fa-times-circle"></i>
+										Connection Failed
+									{% endif %}
+								</h5>
+								<p>{{ testResult.message }}</p>
+							</div>
+						{% endif %}
+					</div>
 
-                    <div class="callout">
-                        <h5>Popular SMTP Providers</h5>
-                        <ul>
-                            <li><strong>Gmail:</strong> smtp.gmail.com:587 (TLS)</li>
-                            <li><strong>Outlook/Hotmail:</strong> smtp-mail.outlook.com:587 (TLS)</li>
-                            <li><strong>Yahoo:</strong> smtp.mail.yahoo.com:587 (TLS)</li>
-                            <li><strong>SendGrid:</strong> smtp.sendgrid.net:587 (TLS)</li>
-                            <li><strong>Mailgun:</strong> smtp.mailgun.org:587 (TLS)</li>
-                        </ul>
-                    </div>
+					<!-- Configuration Help -->
+					<div class="config-section">
+						<h3>
+							<i class="fas fa-question-circle"></i>
+							Configuration Help</h3>
+						<p>Add the following variables to your
+							<code>.env</code>
+							file:</p>
 
-                    <div class="callout warning">
-                        <h5><i class="fas fa-shield-alt"></i> Security Note</h5>
-                        <p>For Gmail, you'll need to use an <strong>App Password</strong> instead of your regular password.
-                        Enable 2-factor authentication and generate an app password in your Google Account settings.</p>
-                    </div>
-                </div>
+						<div class="env-help">
+							# SMTP Configuration<br>
+							SMTP_HOST=smtp.gmail.com<br>
+							SMTP_PORT=587<br>
+							SMTP_USERNAME=your-email@gmail.com<br>
+							SMTP_PASSWORD=your-app-password<br>
+							SMTP_ENCRYPTION=tls<br>
+							<br>
+							# Email Settings<br>
+							MAIL_FROM_ADDRESS=your-email@gmail.com<br>
+							MAIL_FROM_NAME=Your Company Name
+						</div>
 
-                <!-- Navigation -->
-                <div class="button-group">
-                    <a href="/dashboard" class="button secondary">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a>
-                    <a href="/campaigns" class="button">
-                        <i class="fas fa-bullhorn"></i> Manage Campaigns
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+						<div class="callout">
+							<h5>Popular SMTP Providers</h5>
+							<ul>
+								<li>
+									<strong>Gmail:</strong>
+									smtp.gmail.com:587 (TLS)</li>
+								<li>
+									<strong>Outlook/Hotmail:</strong>
+									smtp-mail.outlook.com:587 (TLS)</li>
+								<li>
+									<strong>Yahoo:</strong>
+									smtp.mail.yahoo.com:587 (TLS)</li>
+								<li>
+									<strong>SendGrid:</strong>
+									smtp.sendgrid.net:587 (TLS)</li>
+								<li>
+									<strong>Mailgun:</strong>
+									smtp.mailgun.org:587 (TLS)</li>
+							</ul>
+						</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/js/foundation.min.js"></script>
-    <script>
-        $(document).foundation();
-    </script>
-</body>
+						<div class="callout warning">
+							<h5>
+								<i class="fas fa-shield-alt"></i>
+								Security Note</h5>
+							<p>For Gmail, you'll need to use an
+								<strong>App Password</strong>
+								instead of your regular password.
+								                        Enable 2-factor authentication and generate an app password in your Google Account settings.</p>
+						</div>
+					</div>
+
+					<!-- Navigation -->
+					<div class="button-group">
+						<a href="/dashboard" class="button secondary">
+							<i class="fas fa-arrow-left"></i>
+							Back to Dashboard
+						</a>
+						<a href="/campaigns" class="button">
+							<i class="fas fa-bullhorn"></i>
+							Manage Campaigns
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/js/foundation.min.js"></script>
+		<script>
+			$(document).foundation();
+		</script>
+	</body>
 </html>
