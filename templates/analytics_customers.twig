@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>{{ page_title }}
+			- CRMAIze</title>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/css/foundation.min.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+	</head>
+	<body>
+		<!-- Navigation -->
+		<div class="top-bar">
+			<div class="top-bar-left">
+				<ul class="menu">
+					<li class="menu-text">
+						<strong>CRMAIze</strong>
+					</li>
+					<li>
+						<a href="/">Dashboard</a>
+					</li>
+					<li>
+						<a href="/campaigns">Campaigns</a>
+					</li>
+					<li>
+						<a href="/customers">Customers</a>
+					</li>
+					<li class="active">
+						<a href="/analytics">Analytics</a>
+					</li>
+					{% if user.role == 'admin' %}
+						<li>
+							<a href="/email-settings">Email Settings</a>
+						</li>
+						<li>
+							<a href="/data-import-export">Data Import/Export</a>
+						</li>
+					{% endif %}
+				</ul>
+			</div>
+			<div class="top-bar-right">
+				<ul class="menu">
+					<li>
+						<span>Welcome,
+							{{ user.username }}</span>
+					</li>
+					<li>
+						<a href="/logout">Logout</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="row">
+			<div class="large-12 columns">
+				<h2>{{ page_title }}</h2>
+
+				<nav aria-label="You are here:" role="navigation">
+					<ul class="breadcrumbs">
+						<li>
+							<a href="/analytics">Analytics</a>
+						</li>
+						<li class="current">Customer Analytics</li>
+					</ul>
+				</nav>
+
+				<!-- Customer Segments -->
+				<div class="row">
+					<div class="large-6 columns">
+						<div class="callout">
+							<h4>Customer Value Segments</h4>
+							<table>
+								<thead>
+									<tr>
+										<th>Segment</th>
+										<th>Count</th>
+										<th>Percentage</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% set total_customers = customer_analytics.value_segments.high_value + customer_analytics.value_segments.medium_value + customer_analytics.value_segments.low_value %}
+									{% for segment, count in customer_analytics.value_segments %}
+										<tr>
+											<td>{{ segment|replace({'_': ' '})|title }}</td>
+											<td>{{ count }}</td>
+											<td>{{ total_customers > 0 ? ((count / total_customers) * 100)|round(1) : 0 }}%</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="large-6 columns">
+						<div class="callout">
+							<h4>Customer Loyalty Levels</h4>
+							<table>
+								<thead>
+									<tr>
+										<th>Level</th>
+										<th>Count</th>
+										<th>Percentage</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% set total_loyalty = customer_analytics.loyalty_levels.new + customer_analytics.loyalty_levels.regular + customer_analytics.loyalty_levels.loyal + customer_analytics.loyalty_levels.vip %}
+									{% for level, count in customer_analytics.loyalty_levels %}
+										<tr>
+											<td>{{ level|title }}</td>
+											<td>{{ count }}</td>
+											<td>{{ total_loyalty > 0 ? ((count / total_loyalty) * 100)|round(1) : 0 }}%</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+
+				<!-- Age Groups -->
+				<div class="row">
+					<div class="large-6 columns">
+						<div class="callout">
+							<h4>Age Group Distribution</h4>
+							<table>
+								<thead>
+									<tr>
+										<th>Age Group</th>
+										<th>Count</th>
+										<th>Percentage</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% set total_age = customer_analytics.age_groups['0-30'] + customer_analytics.age_groups['31-50'] + customer_analytics.age_groups['51+'] %}
+									{% for age_group, count in customer_analytics.age_groups %}
+										<tr>
+											<td>{{ age_group }}</td>
+											<td>{{ count }}</td>
+											<td>{{ total_age > 0 ? ((count / total_age) * 100)|round(1) : 0 }}%</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="large-6 columns">
+						<div class="callout">
+							<h4>Geographic Distribution</h4>
+							<table>
+								<thead>
+									<tr>
+										<th>Region</th>
+										<th>Count</th>
+										<th>Percentage</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% set total_geo = customer_analytics.geographic_distribution['North America'] + customer_analytics.geographic_distribution['Europe'] + customer_analytics.geographic_distribution['Asia'] + customer_analytics.geographic_distribution['Other'] %}
+									{% for region, count in customer_analytics.geographic_distribution %}
+										<tr>
+											<td>{{ region }}</td>
+											<td>{{ count }}</td>
+											<td>{{ total_geo > 0 ? ((count / total_geo) * 100)|round(1) : 0 }}%</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+
+				<!-- Lifetime Value Distribution -->
+				<div class="row">
+					<div class="large-12 columns">
+						<div class="callout">
+							<h4>Lifetime Value Distribution</h4>
+							<div class="row">
+								{% for range, count in customer_analytics.lifetime_value_distribution %}
+									<div class="large-3 medium-6 columns">
+										<div class="callout {{ loop.index == 1 ? 'alert' : (loop.index == 2 ? 'warning' : (loop.index == 3 ? 'success' : 'primary')) }}">
+											<h5>$
+												{{ range }}
+												</h5>
+												<h3>{{ count }}</h3>
+												<p>customers</p>
+											</div>
+										</div>
+									{% endfor %}
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Key Insights -->
+					<div class="row">
+						<div class="large-12 columns">
+							<div class="callout">
+								<h4>Key Customer Insights</h4>
+								<div class="row">
+									<div class="large-4 columns">
+										<div class="callout alert">
+											<h5>High Risk Customers</h5>
+											<h3>{{ overview.high_risk_customers }}</h3>
+											<p>{{ overview.churn_rate }}% churn risk</p>
+										</div>
+									</div>
+									<div class="large-4 columns">
+										<div class="callout success">
+											<h5>VIP Customers</h5>
+											<h3>{{ customer_analytics.loyalty_levels.vip }}</h3>
+											<p>Highest value segment</p>
+										</div>
+									</div>
+									<div class="large-4 columns">
+										<div class="callout primary">
+											<h5>New Customers</h5>
+											<h3>{{ customer_analytics.loyalty_levels.new }}</h3>
+											<p>Growth opportunity</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Actions -->
+					<div class="row">
+						<div class="large-12 columns">
+							<div class="callout">
+								<h4>Actions</h4>
+								<div class="button-group">
+									<a href="/analytics/download-report?type=customer" class="button primary">
+										<i class="fi-page-pdf"></i>
+										Download Customer Report
+									</a>
+									<a href="/campaigns/create" class="button secondary">
+										<i class="fi-mail"></i>
+										Create Targeted Campaign
+									</a>
+									<a href="/analytics" class="button">
+										<i class="fi-arrow-left"></i>
+										Back to Analytics
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/js/foundation.min.js"></script>
+			<script>
+				$(document).foundation();
+			</script>
+		</body>
+	</body>
+</html>

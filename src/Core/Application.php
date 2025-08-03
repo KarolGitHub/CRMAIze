@@ -10,6 +10,7 @@ use CRMAIze\Service\AuthService;
 use CRMAIze\Service\EmailService;
 use CRMAIze\Service\CampaignScheduler;
 use CRMAIze\Service\DataImportExportService;
+use CRMAIze\Service\AnalyticsService;
 use CRMAIze\Repository\UserRepository;
 use CRMAIze\Repository\CampaignRepository;
 use CRMAIze\Repository\CustomerRepository;
@@ -23,6 +24,7 @@ class Application
   private $emailService;
   private $campaignScheduler;
   private $dataImportExportService;
+  private $analyticsService;
 
   public function __construct()
   {
@@ -59,6 +61,9 @@ class Application
 
     // Initialize Data Import/Export Service
     $this->dataImportExportService = new DataImportExportService($customerRepo, $campaignRepo, $userRepository);
+
+    // Initialize Analytics Service
+    $this->analyticsService = new AnalyticsService($customerRepo, $campaignRepo);
   }
 
   public function handle(Router $router)
@@ -115,5 +120,10 @@ class Application
   public function getDataImportExportService(): DataImportExportService
   {
     return $this->dataImportExportService;
+  }
+
+  public function getAnalyticsService(): AnalyticsService
+  {
+    return $this->analyticsService;
   }
 }

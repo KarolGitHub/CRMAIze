@@ -1,0 +1,299 @@
+{% extends "base.twig" %}
+
+{% block title %}
+	{{ page_title }}
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+		<div class="large-12 columns">
+			<h2>{{ page_title }}</h2>
+
+			<nav aria-label="You are here:" role="navigation">
+				<ul class="breadcrumbs">
+					<li>
+						<a href="/analytics">Analytics</a>
+					</li>
+					<li class="current">Campaign Analytics</li>
+				</ul>
+			</nav>
+
+			<!-- Campaign Overview -->
+			<div class="row">
+				<div class="large-3 medium-6 columns">
+					<div class="callout primary">
+						<h5>Total Campaigns</h5>
+						<h3>{{ campaign_analytics.total_campaigns }}</h3>
+					</div>
+				</div>
+				<div class="large-3 medium-6 columns">
+					<div class="callout success">
+						<h5>Completed</h5>
+						<h3>{{ campaign_analytics.completed_campaigns }}</h3>
+					</div>
+				</div>
+				<div class="large-3 medium-6 columns">
+					<div class="callout warning">
+						<h5>Active</h5>
+						<h3>{{ campaign_analytics.active_campaigns }}</h3>
+					</div>
+				</div>
+				<div class="large-3 medium-6 columns">
+					<div class="callout secondary">
+						<h5>Success Rate</h5>
+						<h3>{{ campaign_analytics.total_campaigns > 0 ? ((campaign_analytics.completed_campaigns / campaign_analytics.total_campaigns) * 100)|round(1) : 0 }}%</h3>
+					</div>
+				</div>
+			</div>
+
+			<!-- Performance Metrics -->
+			<div class="row">
+				<div class="large-6 columns">
+					<div class="callout">
+						<h4>Email Performance Metrics</h4>
+						<table>
+							<tbody>
+								<tr>
+									<td>
+										<strong>Average Open Rate:</strong>
+									</td>
+									<td>
+										<span class="label {{ campaign_analytics.performance_metrics.average_open_rate >= 25 ? 'success' : (campaign_analytics.performance_metrics.average_open_rate >= 15 ? 'warning' : 'alert') }}">
+											{{ campaign_analytics.performance_metrics.average_open_rate }}%
+										</span>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<strong>Average Click Rate:</strong>
+									</td>
+									<td>
+										<span class="label {{ campaign_analytics.performance_metrics.average_click_rate >= 3 ? 'success' : (campaign_analytics.performance_metrics.average_click_rate >= 2 ? 'warning' : 'alert') }}">
+											{{ campaign_analytics.performance_metrics.average_click_rate }}%
+										</span>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<strong>Average Conversion Rate:</strong>
+									</td>
+									<td>
+										<span class="label {{ campaign_analytics.performance_metrics.average_conversion_rate >= 2 ? 'success' : (campaign_analytics.performance_metrics.average_conversion_rate >= 1 ? 'warning' : 'alert') }}">
+											{{ campaign_analytics.performance_metrics.average_conversion_rate }}%
+										</span>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<strong>Total Emails Sent:</strong>
+									</td>
+									<td>{{ campaign_analytics.performance_metrics.total_emails_sent|number_format }}</td>
+								</tr>
+								<tr>
+									<td>
+										<strong>Revenue Generated:</strong>
+									</td>
+									<td>
+										<strong>${{ campaign_analytics.performance_metrics.total_revenue_generated|number_format }}</strong>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="large-6 columns">
+					<div class="callout">
+						<h4>Campaign Type Distribution</h4>
+						<table>
+							<thead>
+								<tr>
+									<th>Type</th>
+									<th>Count</th>
+									<th>Percentage</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for type, count in campaign_analytics.type_distribution %}
+									<tr>
+										<td>{{ type|title }}</td>
+										<td>{{ count }}</td>
+										<td>{{ campaign_analytics.total_campaigns > 0 ? ((count / campaign_analytics.total_campaigns) * 100)|round(1) : 0 }}%</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!-- Monthly Campaign Trends -->
+			<div class="row">
+				<div class="large-12 columns">
+					<div class="callout">
+						<h4>Monthly Campaign Activity (Last 12 Months)</h4>
+						<canvas id="monthlyTrendsChart" width="800" height="300"></canvas>
+					</div>
+				</div>
+			</div>
+
+			<!-- Performance Benchmarks -->
+			<div class="row">
+				<div class="large-12 columns">
+					<div class="callout">
+						<h4>Performance Benchmarks</h4>
+						<div class="row">
+							<div class="large-4 columns">
+								<div class="callout {{ campaign_analytics.performance_metrics.average_open_rate >= 25 ? 'success' : (campaign_analytics.performance_metrics.average_open_rate >= 15 ? 'warning' : 'alert') }}">
+									<h5>Open Rate</h5>
+									<h3>{{ campaign_analytics.performance_metrics.average_open_rate }}%</h3>
+									<p>
+										{% if campaign_analytics.performance_metrics.average_open_rate >= 25 %}
+											Excellent performance
+										{% elseif campaign_analytics.performance_metrics.average_open_rate >= 15 %}
+											Good performance
+										{% else %}
+											Needs improvement
+										{% endif %}
+									</p>
+								</div>
+							</div>
+							<div class="large-4 columns">
+								<div class="callout {{ campaign_analytics.performance_metrics.average_click_rate >= 3 ? 'success' : (campaign_analytics.performance_metrics.average_click_rate >= 2 ? 'warning' : 'alert') }}">
+									<h5>Click Rate</h5>
+									<h3>{{ campaign_analytics.performance_metrics.average_click_rate }}%</h3>
+									<p>
+										{% if campaign_analytics.performance_metrics.average_click_rate >= 3 %}
+											Above average
+										{% elseif campaign_analytics.performance_metrics.average_click_rate >= 2 %}
+											Average performance
+										{% else %}
+											Below average
+										{% endif %}
+									</p>
+								</div>
+							</div>
+							<div class="large-4 columns">
+								<div class="callout {{ campaign_analytics.performance_metrics.average_conversion_rate >= 2 ? 'success' : (campaign_analytics.performance_metrics.average_conversion_rate >= 1 ? 'warning' : 'alert') }}">
+									<h5>Conversion Rate</h5>
+									<h3>{{ campaign_analytics.performance_metrics.average_conversion_rate }}%</h3>
+									<p>
+										{% if campaign_analytics.performance_metrics.average_conversion_rate >= 2 %}
+											Strong conversion
+										{% elseif campaign_analytics.performance_metrics.average_conversion_rate >= 1 %}
+											Moderate conversion
+										{% else %}
+											Low conversion
+										{% endif %}
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Recommendations -->
+			<div class="row">
+				<div class="large-12 columns">
+					<div class="callout">
+						<h4>Optimization Recommendations</h4>
+						<ul>
+							{% if campaign_analytics.performance_metrics.average_open_rate < 15 %}
+								<li>
+									<strong>Improve Subject Lines:</strong>
+									Your open rate is below industry average. Consider A/B testing different subject lines and using AI suggestions.</li>
+							{% endif %}
+							{% if campaign_analytics.performance_metrics.average_click_rate < 2 %}
+								<li>
+									<strong>Enhance Content:</strong>
+									Your click rate could be improved. Focus on more compelling calls-to-action and personalized content.</li>
+							{% endif %}
+							{% if campaign_analytics.performance_metrics.average_conversion_rate < 1 %}
+								<li>
+									<strong>Optimize Landing Pages:</strong>
+									Your conversion rate suggests issues with the post-click experience. Review your landing pages and offers.</li>
+							{% endif %}
+							{% if campaign_analytics.active_campaigns == 0 %}
+								<li>
+									<strong>Increase Activity:</strong>
+									Consider launching more campaigns to engage your customer base regularly.</li>
+							{% endif %}
+							<li>
+								<strong>Segment Testing:</strong>
+								Try targeting different customer segments to find your most responsive audiences.</li>
+							<li>
+								<strong>Timing Optimization:</strong>
+								Use AI suggestions to find optimal send times for your campaigns.</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<!-- Actions -->
+			<div class="row">
+				<div class="large-12 columns">
+					<div class="callout">
+						<h4>Actions</h4>
+						<div class="button-group">
+							<a href="/analytics/download-report?type=campaign" class="button primary">
+								<i class="fi-page-pdf"></i>
+								Download Campaign Report
+							</a>
+							<a href="/campaigns/create" class="button success">
+								<i class="fi-plus"></i>
+								Create New Campaign
+							</a>
+							<a href="/campaigns" class="button secondary">
+								<i class="fi-list"></i>
+								View All Campaigns
+							</a>
+							<a href="/analytics" class="button">
+								<i class="fi-arrow-left"></i>
+								Back to Analytics
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function () { // Monthly Trends Chart
+const monthlyData = {{ campaign_analytics.monthly_campaign_trends|json_encode|raw }};
+const ctx = document.getElementById('monthlyTrendsChart').getContext('2d');
+
+new Chart(ctx, {
+type: 'line',
+data: {
+labels: Object.keys(monthlyData),
+datasets: [
+{
+label: 'Campaigns Launched',
+data: Object.values(monthlyData),
+borderColor: 'rgb(75, 192, 192)',
+backgroundColor: 'rgba(75, 192, 192, 0.2)',
+tension: 0.1
+}
+]
+},
+options: {
+responsive: true,
+scales: {
+y: {
+beginAtZero: true,
+ticks: {
+stepSize: 1
+}
+}
+},
+plugins: {
+legend: {
+display: false
+}
+}
+}
+});
+});
+	</script>
+{% endblock %}

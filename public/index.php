@@ -10,6 +10,7 @@ use CRMAIze\Controller\CampaignController;
 use CRMAIze\Controller\AuthController;
 use CRMAIze\Controller\EmailSettingsController;
 use CRMAIze\Controller\DataImportExportController;
+use CRMAIze\Controller\AnalyticsController;
 
 // Load environment variables
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
@@ -59,6 +60,14 @@ $router->post('/import/customers', [DataImportExportController::class, 'importCu
 $router->post('/import/campaigns', [DataImportExportController::class, 'importCampaigns']);
 $router->get('/download/template/customers', [DataImportExportController::class, 'downloadCustomerTemplate']);
 $router->get('/download/template/campaigns', [DataImportExportController::class, 'downloadCampaignTemplate']);
+
+// Analytics routes (protected)
+$router->get('/analytics', [AnalyticsController::class, 'index']);
+$router->get('/analytics/customers', [AnalyticsController::class, 'customers']);
+$router->get('/analytics/campaigns', [AnalyticsController::class, 'campaigns']);
+$router->get('/analytics/revenue', [AnalyticsController::class, 'revenue']);
+$router->get('/analytics/chart-data', [AnalyticsController::class, 'getChartData']);
+$router->get('/analytics/download-report', [AnalyticsController::class, 'downloadReport']);
 
 // Handle the request
 $app->handle($router);

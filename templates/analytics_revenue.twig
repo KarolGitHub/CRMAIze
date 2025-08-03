@@ -1,0 +1,374 @@
+{% extends "base.twig" %}
+
+{% block title %}
+	{{ page_title }}
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+		<div class="large-12 columns">
+			<h2>{{ page_title }}</h2>
+
+			<nav aria-label="You are here:" role="navigation">
+				<ul class="breadcrumbs">
+					<li>
+						<a href="/analytics">Analytics</a>
+					</li>
+					<li class="current">Revenue Analytics</li>
+				</ul>
+			</nav>
+
+			<!-- Revenue Overview -->
+			<div class="row">
+				<div class="large-3 medium-6 columns">
+					<div class="callout primary">
+						<h5>Total Revenue</h5>
+						<h3>${{ revenue_analytics.total_revenue|number_format(2) }}</h3>
+					</div>
+				</div>
+				<div class="large-3 medium-6 columns">
+					<div class="callout {{ revenue_analytics.revenue_growth >= 0 ? 'success' : 'alert' }}">
+						<h5>Growth Rate</h5>
+						<h3>{{ revenue_analytics.revenue_growth }}%</h3>
+						<p>vs last month</p>
+					</div>
+				</div>
+				<div class="large-3 medium-6 columns">
+					<div class="callout warning">
+						<h5>Top Customers</h5>
+						<h3>{{ revenue_analytics.top_customers|length }}</h3>
+						<p>high value</p>
+					</div>
+				</div>
+				<div class="large-3 medium-6 columns">
+					<div class="callout secondary">
+						<h5>Avg Monthly</h5>
+						<h3>${{ (revenue_analytics.monthly_revenue|length > 0 ? (revenue_analytics.total_revenue / revenue_analytics.monthly_revenue|length) : 0)|number_format(0) }}</h3>
+					</div>
+				</div>
+			</div>
+
+			<!-- Revenue Trend Chart -->
+			<div class="row">
+				<div class="large-12 columns">
+					<div class="callout">
+						<h4>Revenue Trend (Last 12 Months)</h4>
+						<canvas id="revenueTrendChart" width="800" height="300"></canvas>
+					</div>
+				</div>
+			</div>
+
+			<!-- Revenue by Segment -->
+			<div class="row">
+				<div class="large-6 columns">
+					<div class="callout">
+						<h4>Revenue by Customer Segment</h4>
+						<table>
+							<thead>
+								<tr>
+									<th>Segment</th>
+									<th>Revenue</th>
+									<th>Percentage</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for segment, amount in revenue_analytics.revenue_by_segment %}
+									<tr>
+										<td>{{ segment|replace({'_': ' '})|title }}</td>
+										<td>${{ amount|number_format(2) }}</td>
+										<td>{{ revenue_analytics.total_revenue > 0 ? ((amount / revenue_analytics.total_revenue) * 100)|round(1) : 0 }}%</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="large-6 columns">
+					<div class="callout">
+						<h4>Revenue Segment Distribution</h4>
+						<canvas id="revenueSegmentChart" width="400" height="300"></canvas>
+					</div>
+				</div>
+			</div>
+
+			<!-- Top Customers -->
+			<div class="row">
+				<div class="large-12 columns">
+					<div class="callout">
+						<h4>Top 10 Customers by Revenue</h4>
+						<table>
+							<thead>
+								<tr>
+									<th>Rank</th>
+									<th>Customer</th>
+									<th>Email</th>
+									<th>Total Spent</th>
+									<th>Orders</th>
+									<th>Avg Order Value</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for customer in revenue_analytics.top_customers %}
+									<tr>
+										<td>{{ loop.index }}</td>
+										<td>{{ customer.first_name }}
+											{{ customer.last_name }}</td>
+										<td>{{ customer.email }}</td>
+										<td>${{ customer.total_spent|number_format(2) }}</td>
+										<td>{{ customer.order_count }}</td>
+										<td>${{ (customer.order_count > 0 ? (customer.total_spent / customer.order_count) : 0)|number_format(2) }}</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!-- Trend Analysis -->
+			<div class="row">
+				<div class="large-6 columns">
+					<div class="callout">
+						<h4>Customer Acquisition Trend</h4>
+						<canvas id="acquisitionTrendChart" width="400" height="250"></canvas>
+					</div>
+				</div>
+				<div class="large-6 columns">
+					<div class="callout">
+						<h4>Churn Risk Trend</h4>
+						<canvas id="churnTrendChart" width="400" height="250"></canvas>
+					</div>
+				</div>
+			</div>
+
+			<!-- Key Insights -->
+			<div class="row">
+				<div class="large-12 columns">
+					<div class="callout">
+						<h4>Revenue Insights & Recommendations</h4>
+						<div class="row">
+							<div class="large-6 columns">
+								<h5>Key Insights:</h5>
+								<ul>
+									<li>
+										<strong>Growth Trend:</strong>
+										{% if revenue_analytics.revenue_growth > 10 %}
+											Excellent growth of
+											{{ revenue_analytics.revenue_growth }}% - maintain current strategies
+										{% elseif revenue_analytics.revenue_growth > 0 %}
+											Positive growth of
+											{{ revenue_analytics.revenue_growth }}% - consider optimization opportunities
+										{% else %}
+											Declining revenue ({{ revenue_analytics.revenue_growth }}%) - immediate action needed
+										{% endif %}
+									</li>
+									<li>
+										<strong>Customer Concentration:</strong>
+										Top 10 customers contribute significantly to revenue</li>
+									<li>
+										<strong>Segment Performance:</strong>
+										{% set highest_segment = revenue_analytics.revenue_by_segment|keys|first %}
+										{% set highest_amount = revenue_analytics.revenue_by_segment|first %}
+										{{ highest_segment|replace({'_': ' '})|title }}
+										segment generates most revenue ({{ (highest_amount / revenue_analytics.total_revenue * 100)|round(1) }}%)
+									</li>
+								</ul>
+							</div>
+							<div class="large-6 columns">
+								<h5>Recommendations:</h5>
+								<ul>
+									{% if revenue_analytics.revenue_growth < 0 %}
+										<li>
+											<strong>Urgent:</strong>
+											Implement customer retention campaigns for high-value segments</li>
+										<li>
+											<strong>Analyze:</strong>
+											Identify reasons for revenue decline and address root causes</li>
+									{% endif %}
+									<li>
+										<strong>Diversify:</strong>
+										Reduce dependency on top customers by expanding customer base</li>
+									<li>
+										<strong>Optimize:</strong>
+										Focus marketing efforts on highest-performing segments</li>
+									<li>
+										<strong>Retention:</strong>
+										Implement loyalty programs for high-value customers</li>
+									<li>
+										<strong>Upsell:</strong>
+										Target medium-value customers for upgrade opportunities</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Actions -->
+			<div class="row">
+				<div class="large-12 columns">
+					<div class="callout">
+						<h4>Actions</h4>
+						<div class="button-group">
+							<a href="/analytics/download-report?type=revenue" class="button primary">
+								<i class="fi-page-pdf"></i>
+								Download Revenue Report
+							</a>
+							<a href="/campaigns/create" class="button success">
+								<i class="fi-target-two"></i>
+								Create Revenue Campaign
+							</a>
+							<a href="/customers" class="button secondary">
+								<i class="fi-torsos-all"></i>
+								View Customer List
+							</a>
+							<a href="/analytics" class="button">
+								<i class="fi-arrow-left"></i>
+								Back to Analytics
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function () { // Revenue Trend Chart
+const revenueData = {{ revenue_analytics.monthly_revenue|json_encode|raw }};
+const revenueCtx = document.getElementById('revenueTrendChart').getContext('2d');
+
+new Chart(revenueCtx, {
+type: 'line',
+data: {
+labels: Object.keys(revenueData),
+datasets: [
+{
+label: 'Monthly Revenue',
+data: Object.values(revenueData),
+borderColor: 'rgb(75, 192, 192)',
+backgroundColor: 'rgba(75, 192, 192, 0.2)',
+tension: 0.1,
+fill: true
+}
+]
+},
+options: {
+responsive: true,
+scales: {
+y: {
+beginAtZero: true,
+ticks: {
+callback: function (value) {
+return '$' + value.toLocaleString();
+}
+}
+}
+},
+plugins: {
+legend: {
+display: false
+}
+}
+}
+});
+
+// Revenue Segment Chart
+const segmentData = {{ revenue_analytics.revenue_by_segment|json_encode|raw }};
+const segmentCtx = document.getElementById('revenueSegmentChart').getContext('2d');
+
+new Chart(segmentCtx, {
+type: 'pie',
+data: {
+labels: Object.keys(segmentData).map(key => key.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())),
+datasets: [
+{
+data: Object.values(segmentData),
+backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 205, 86, 0.8)']
+}
+]
+},
+options: {
+responsive: true,
+plugins: {
+legend: {
+position: 'bottom'
+}
+}
+}
+});
+
+// Customer Acquisition Trend Chart
+const acquisitionData = {{ trends.customer_acquisition|json_encode|raw }};
+const acquisitionCtx = document.getElementById('acquisitionTrendChart').getContext('2d');
+
+new Chart(acquisitionCtx, {
+type: 'bar',
+data: {
+labels: Object.keys(acquisitionData),
+datasets: [
+{
+label: 'New Customers',
+data: Object.values(acquisitionData),
+backgroundColor: 'rgba(54, 162, 235, 0.8)',
+borderColor: 'rgba(54, 162, 235, 1)',
+borderWidth: 1
+}
+]
+},
+options: {
+responsive: true,
+scales: {
+y: {
+beginAtZero: true
+}
+},
+plugins: {
+legend: {
+display: false
+}
+}
+}
+});
+
+// Churn Trend Chart
+const churnData = {{ trends.churn_trend|json_encode|raw }};
+const churnCtx = document.getElementById('churnTrendChart').getContext('2d');
+
+new Chart(churnCtx, {
+type: 'line',
+data: {
+labels: Object.keys(churnData),
+datasets: [
+{
+label: 'Churn Rate %',
+data: Object.values(churnData),
+borderColor: 'rgba(255, 99, 132, 1)',
+backgroundColor: 'rgba(255, 99, 132, 0.2)',
+tension: 0.1
+}
+]
+},
+options: {
+responsive: true,
+scales: {
+y: {
+beginAtZero: true,
+max: 20,
+ticks: {
+callback: function (value) {
+return value + '%';
+}
+}
+}
+},
+plugins: {
+legend: {
+display: false
+}
+}
+}
+});
+});
+	</script>
+{% endblock %}
