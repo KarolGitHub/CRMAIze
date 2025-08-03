@@ -15,23 +15,24 @@ const STATIC_CACHE_ASSETS = [
   'https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/css/foundation.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
   'https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/js/foundation.min.js',
-  'https://cdn.jsdelivr.net/npm/chart.js'
+  'https://cdn.jsdelivr.net/npm/chart.js',
 ];
 
 // Dynamic cache patterns
 const DYNAMIC_CACHE_PATTERNS = [
   /^https:\/\/api\.crmaize\.com\//,
   /^\/api\//,
-  /^\/analytics\/chart-data/
+  /^\/analytics\/chart-data/,
 ];
 
 // Install event - cache static assets
-self.addEventListener('install', event => {
+self.addEventListener('install', (event) => {
   console.log('[SW] Installing service worker...');
-  
+
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => {
         console.log('[SW] Caching static assets');
         return cache.addAll(STATIC_CACHE_ASSETS);
       })
@@ -39,21 +40,22 @@ self.addEventListener('install', event => {
         console.log('[SW] Static assets cached successfully');
         return self.skipWaiting();
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('[SW] Failed to cache static assets:', error);
       })
   );
 });
 
 // Activate event - clean up old caches
-self.addEventListener('activate', event => {
+self.addEventListener('activate', (event) => {
   console.log('[SW] Activating service worker...');
-  
+
   event.waitUntil(
-    caches.keys()
-      .then(cacheNames => {
+    caches
+      .keys()
+      .then((cacheNames) => {
         return Promise.all(
-          cacheNames.map(cacheName => {
+          cacheNames.map((cacheName) => {
             if (cacheName !== CACHE_NAME) {
               console.log('[SW] Deleting old cache:', cacheName);
               return caches.delete(cacheName);
@@ -69,20 +71,20 @@ self.addEventListener('activate', event => {
 });
 
 // Fetch event - implement caching strategies
-self.addEventListener('fetch', event => {
+self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
-  
+
   // Skip non-GET requests
   if (request.method !== 'GET') {
     return;
   }
-  
+
   // Skip chrome-extension requests
   if (url.protocol === 'chrome-extension:') {
     return;
   }
-  
+
   // Handle different types of requests
   if (isStaticAsset(request)) {
     // Static assets - Cache First strategy
@@ -100,9 +102,9 @@ self.addEventListener('fetch', event => {
 });
 
 // Background sync for offline actions
-self.addEventListener('sync', event => {
+self.addEventListener('sync', (event) => {
   console.log('[SW] Background sync triggered:', event.tag);
-  
+
   if (event.tag === 'background-sync-campaigns') {
     event.waitUntil(syncCampaigns());
   } else if (event.tag === 'background-sync-analytics') {
@@ -111,9 +113,9 @@ self.addEventListener('sync', event => {
 });
 
 // Push notifications (for future use)
-self.addEventListener('push', event => {
+self.addEventListener('push', (event) => {
   console.log('[SW] Push notification received');
-  
+
   const options = {
     body: event.data ? event.data.text() : 'New update available',
     icon: '/assets/icons/icon-192x192.png',
@@ -121,61 +123,64 @@ self.addEventListener('push', event => {
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
-      primaryKey: 1
+      primaryKey: 1,
     },
     actions: [
       {
         action: 'explore',
         title: 'View Details',
-        icon: '/assets/icons/checkmark.png'
+        icon: '/assets/icons/checkmark.png',
       },
       {
         action: 'close',
         title: 'Close',
-        icon: '/assets/icons/xmark.png'
-      }
-    ]
+        icon: '/assets/icons/xmark.png',
+      },
+    ],
   };
-  
-  event.waitUntil(
-    self.registration.showNotification('CRMAIze', options)
-  );
+
+  event.waitUntil(self.registration.showNotification('CRMAIze', options));
 });
 
 // Notification click handler
-self.addEventListener('notificationclick', event => {
+self.addEventListener('notificationclick', (event) => {
   console.log('[SW] Notification clicked:', event.notification.tag);
-  
+
   event.notification.close();
-  
+
   if (event.action === 'explore') {
-    event.waitUntil(
-      clients.openWindow('/dashboard')
-    );
+    event.waitUntil(clients.openWindow('/dashboard'));
   }
 });
 
 // Helper functions
 function isStaticAsset(request) {
   const url = new URL(request.url);
-  return url.pathname.startsWith('/assets/') || 
-         url.pathname.endsWith('.css') || 
-         url.pathname.endsWith('.js') || 
-         url.pathname.endsWith('.png') || 
-         url.pathname.endsWith('.jpg') || 
-         url.pathname.endsWith('.svg') ||
-         url.hostname !== self.location.hostname; // CDN assets
+  return (
+    url.pathname.startsWith('/assets/') ||
+    url.pathname.endsWith('.css') ||
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.png') ||
+    url.pathname.endsWith('.jpg') ||
+    url.pathname.endsWith('.svg') ||
+    url.hostname !== self.location.hostname
+  ); // CDN assets
 }
 
 function isAPIRequest(request) {
   const url = new URL(request.url);
-  return url.pathname.startsWith('/api/') || 
-         DYNAMIC_CACHE_PATTERNS.some(pattern => pattern.test(request.url));
+  return (
+    url.pathname.startsWith('/api/') ||
+    DYNAMIC_CACHE_PATTERNS.some((pattern) => pattern.test(request.url))
+  );
 }
 
 function isNavigationRequest(request) {
-  return request.mode === 'navigate' || 
-         (request.method === 'GET' && request.headers.get('accept').includes('text/html'));
+  return (
+    request.mode === 'navigate' ||
+    (request.method === 'GET' &&
+      request.headers.get('accept').includes('text/html'))
+  );
 }
 
 // Cache strategies
@@ -185,11 +190,11 @@ async function cacheFirst(request) {
     if (cachedResponse) {
       return cachedResponse;
     }
-    
+
     const networkResponse = await fetch(request);
     const cache = await caches.open(CACHE_NAME);
     cache.put(request, networkResponse.clone());
-    
+
     return networkResponse;
   } catch (error) {
     console.error('[SW] Cache first failed:', error);
@@ -200,33 +205,36 @@ async function cacheFirst(request) {
 async function networkFirst(request) {
   try {
     const networkResponse = await fetch(request);
-    
+
     if (networkResponse.ok) {
       const cache = await caches.open(CACHE_NAME);
       cache.put(request, networkResponse.clone());
     }
-    
+
     return networkResponse;
   } catch (error) {
     console.log('[SW] Network failed, trying cache:', request.url);
     const cachedResponse = await caches.match(request);
-    
+
     if (cachedResponse) {
       return cachedResponse;
     }
-    
+
     // Return offline data for API requests
     if (isAPIRequest(request)) {
-      return new Response(JSON.stringify({
-        error: 'Offline',
-        message: 'This data is not available offline',
-        offline: true
-      }), {
-        status: 503,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          error: 'Offline',
+          message: 'This data is not available offline',
+          offline: true,
+        }),
+        {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
-    
+
     throw error;
   }
 }
@@ -239,13 +247,14 @@ async function navigationHandler(request) {
     console.log('[SW] Navigation offline, serving offline page');
     const cache = await caches.open(CACHE_NAME);
     const offlinePage = await cache.match(OFFLINE_URL);
-    
+
     if (offlinePage) {
       return offlinePage;
     }
-    
+
     // Fallback offline page if not cached
-    return new Response(`
+    return new Response(
+      `
       <!DOCTYPE html>
       <html>
         <head>
@@ -270,25 +279,29 @@ async function navigationHandler(request) {
           </div>
         </body>
       </html>
-    `, {
-      status: 200,
-      headers: { 'Content-Type': 'text/html' }
-    });
+    `,
+      {
+        status: 200,
+        headers: { 'Content-Type': 'text/html' },
+      }
+    );
   }
 }
 
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(CACHE_NAME);
   const cachedResponse = await cache.match(request);
-  
-  const fetchPromise = fetch(request).then(networkResponse => {
-    cache.put(request, networkResponse.clone());
-    return networkResponse;
-  }).catch(error => {
-    console.log('[SW] Network failed for:', request.url);
-    return cachedResponse;
-  });
-  
+
+  const fetchPromise = fetch(request)
+    .then((networkResponse) => {
+      cache.put(request, networkResponse.clone());
+      return networkResponse;
+    })
+    .catch((error) => {
+      console.log('[SW] Network failed for:', request.url);
+      return cachedResponse;
+    });
+
   return cachedResponse || fetchPromise;
 }
 
@@ -318,18 +331,18 @@ async function syncAnalytics() {
 }
 
 // Periodic background sync (if supported)
-self.addEventListener('periodicsync', event => {
+self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'background-analytics-sync') {
     event.waitUntil(syncAnalytics());
   }
 });
 
 // Message handling for communication with main thread
-self.addEventListener('message', event => {
+self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-  
+
   if (event.data && event.data.type === 'GET_VERSION') {
     event.ports[0].postMessage({ version: CACHE_NAME });
   }

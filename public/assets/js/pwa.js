@@ -10,10 +10,10 @@ class CRMAIzePWA {
     this.isStandalone = false;
     this.touchStartX = 0;
     this.touchStartY = 0;
-    
+
     this.init();
   }
-  
+
   init() {
     this.checkInstallationStatus();
     this.registerServiceWorker();
@@ -23,72 +23,75 @@ class CRMAIzePWA {
     this.setupTouchGestures();
     this.setupKeyboardShortcuts();
   }
-  
+
   // Check if app is installed or running in standalone mode
   checkInstallationStatus() {
-    this.isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-                      window.navigator.standalone ||
-                      document.referrer.includes('android-app://');
-    
+    this.isStandalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone ||
+      document.referrer.includes('android-app://');
+
     this.isInstalled = this.isStandalone;
-    
+
     if (this.isStandalone) {
       document.body.classList.add('pwa-standalone');
       console.log('[PWA] Running in standalone mode');
     }
   }
-  
+
   // Register service worker
   async registerServiceWorker() {
     if ('serviceWorker' in navigator) {
       try {
         const registration = await navigator.serviceWorker.register('/sw.js');
         console.log('[PWA] Service Worker registered:', registration);
-        
+
         // Listen for updates
         registration.addEventListener('updatefound', () => {
           const newWorker = registration.installing;
           newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            if (
+              newWorker.state === 'installed' &&
+              navigator.serviceWorker.controller
+            ) {
               this.showUpdateAvailable();
             }
           });
         });
-        
+
         // Handle messages from service worker
-        navigator.serviceWorker.addEventListener('message', event => {
+        navigator.serviceWorker.addEventListener('message', (event) => {
           this.handleServiceWorkerMessage(event);
         });
-        
       } catch (error) {
         console.error('[PWA] Service Worker registration failed:', error);
       }
     }
   }
-  
+
   // Setup PWA installation prompt
   setupInstallPrompt() {
     // Listen for beforeinstallprompt event
-    window.addEventListener('beforeinstallprompt', event => {
+    window.addEventListener('beforeinstallprompt', (event) => {
       console.log('[PWA] Install prompt available');
       event.preventDefault();
       this.deferredPrompt = event;
       this.showInstallPrompt();
     });
-    
+
     // Listen for app installed event
-    window.addEventListener('appinstalled', event => {
+    window.addEventListener('appinstalled', (event) => {
       console.log('[PWA] App installed successfully');
       this.isInstalled = true;
       this.hideInstallPrompt();
       this.showInstallSuccess();
     });
   }
-  
+
   // Show install prompt UI
   showInstallPrompt() {
     if (this.isInstalled || !this.deferredPrompt) return;
-    
+
     const promptHtml = `
       <div class="pwa-install-prompt" id="installPrompt">
         <button class="close-btn" onclick="crmaizePWA.hideInstallPrompt()">&times;</button>
@@ -106,36 +109,36 @@ class CRMAIzePWA {
         </div>
       </div>
     `;
-    
+
     document.body.insertAdjacentHTML('beforeend', promptHtml);
-    
+
     setTimeout(() => {
       const prompt = document.getElementById('installPrompt');
       if (prompt) prompt.classList.add('show');
     }, 2000); // Show after 2 seconds
   }
-  
+
   // Install the PWA
   async installApp() {
     if (!this.deferredPrompt) return;
-    
+
     try {
       const result = await this.deferredPrompt.prompt();
       console.log('[PWA] Install prompt result:', result);
-      
+
       if (result.outcome === 'accepted') {
         console.log('[PWA] User accepted install');
       } else {
         console.log('[PWA] User dismissed install');
       }
-      
+
       this.deferredPrompt = null;
       this.hideInstallPrompt();
     } catch (error) {
       console.error('[PWA] Install failed:', error);
     }
   }
-  
+
   // Hide install prompt
   hideInstallPrompt() {
     const prompt = document.getElementById('installPrompt');
@@ -143,7 +146,7 @@ class CRMAIzePWA {
       prompt.remove();
     }
   }
-  
+
   // Show install success message
   showInstallSuccess() {
     const successHtml = `
@@ -159,47 +162,47 @@ class CRMAIzePWA {
         </div>
       </div>
     `;
-    
+
     document.body.insertAdjacentHTML('beforeend', successHtml);
-    
+
     setTimeout(() => {
       const success = document.getElementById('installSuccess');
       if (success) success.remove();
     }, 5000);
   }
-  
+
   // Setup mobile-specific features
   setupMobileFeatures() {
     // Prevent zoom on input focus (iOS)
     if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
       const inputs = document.querySelectorAll('input, select, textarea');
-      inputs.forEach(input => {
+      inputs.forEach((input) => {
         if (input.style.fontSize < '16px') {
           input.style.fontSize = '16px';
         }
       });
     }
-    
+
     // Add touch-friendly classes
     document.body.classList.add('touch-device');
-    
+
     // Improve button accessibility
     const buttons = document.querySelectorAll('.button, button');
-    buttons.forEach(button => {
+    buttons.forEach((button) => {
       button.classList.add('touch-friendly');
     });
-    
+
     // Handle viewport height on mobile (address bar)
     this.handleViewportHeight();
     window.addEventListener('resize', () => this.handleViewportHeight());
   }
-  
+
   // Handle mobile viewport height issues
   handleViewportHeight() {
     const vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
   }
-  
+
   // Setup offline detection
   setupOfflineDetection() {
     const showOfflineIndicator = () => {
@@ -208,12 +211,13 @@ class CRMAIzePWA {
         indicator = document.createElement('div');
         indicator.id = 'offlineIndicator';
         indicator.className = 'offline-indicator';
-        indicator.innerHTML = '📡 You are offline - Some features may be limited';
+        indicator.innerHTML =
+          '📡 You are offline - Some features may be limited';
         document.body.appendChild(indicator);
       }
       indicator.classList.add('show');
     };
-    
+
     const hideOfflineIndicator = () => {
       const indicator = document.getElementById('offlineIndicator');
       if (indicator) {
@@ -221,56 +225,64 @@ class CRMAIzePWA {
         setTimeout(() => indicator.remove(), 300);
       }
     };
-    
+
     window.addEventListener('offline', showOfflineIndicator);
     window.addEventListener('online', hideOfflineIndicator);
-    
+
     // Initial check
     if (!navigator.onLine) {
       showOfflineIndicator();
     }
   }
-  
+
   // Setup touch gestures
   setupTouchGestures() {
     let startX, startY, startTime;
-    
-    document.addEventListener('touchstart', event => {
-      const touch = event.touches[0];
-      startX = touch.clientX;
-      startY = touch.clientY;
-      startTime = Date.now();
-    }, { passive: true });
-    
-    document.addEventListener('touchend', event => {
-      if (!startX || !startY) return;
-      
-      const touch = event.changedTouches[0];
-      const endX = touch.clientX;
-      const endY = touch.clientY;
-      const endTime = Date.now();
-      
-      const deltaX = endX - startX;
-      const deltaY = endY - startY;
-      const deltaTime = endTime - startTime;
-      
-      // Swipe detection
-      const minSwipeDistance = 50;
-      const maxSwipeTime = 300;
-      
-      if (Math.abs(deltaX) > minSwipeDistance && deltaTime < maxSwipeTime) {
-        if (deltaX > 0) {
-          this.handleSwipeRight();
-        } else {
-          this.handleSwipeLeft();
+
+    document.addEventListener(
+      'touchstart',
+      (event) => {
+        const touch = event.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        startTime = Date.now();
+      },
+      { passive: true }
+    );
+
+    document.addEventListener(
+      'touchend',
+      (event) => {
+        if (!startX || !startY) return;
+
+        const touch = event.changedTouches[0];
+        const endX = touch.clientX;
+        const endY = touch.clientY;
+        const endTime = Date.now();
+
+        const deltaX = endX - startX;
+        const deltaY = endY - startY;
+        const deltaTime = endTime - startTime;
+
+        // Swipe detection
+        const minSwipeDistance = 50;
+        const maxSwipeTime = 300;
+
+        if (Math.abs(deltaX) > minSwipeDistance && deltaTime < maxSwipeTime) {
+          if (deltaX > 0) {
+            this.handleSwipeRight();
+          } else {
+            this.handleSwipeLeft();
+          }
         }
-      }
-      
-      // Reset
-      startX = startY = null;
-    }, { passive: true });
+
+        // Reset
+        startX = startY = null;
+      },
+      { passive: true }
+    );
   }
-  
+
   // Handle swipe gestures
   handleSwipeRight() {
     // Open sidebar if available
@@ -279,7 +291,7 @@ class CRMAIzePWA {
       offCanvasToggle.click();
     }
   }
-  
+
   handleSwipeLeft() {
     // Close sidebar if open
     const offCanvas = document.getElementById('offCanvas');
@@ -287,28 +299,28 @@ class CRMAIzePWA {
       offCanvas.classList.remove('is-open');
     }
   }
-  
+
   // Setup keyboard shortcuts
   setupKeyboardShortcuts() {
-    document.addEventListener('keydown', event => {
+    document.addEventListener('keydown', (event) => {
       // Ctrl/Cmd + K for search (future feature)
       if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
         event.preventDefault();
         console.log('[PWA] Search shortcut triggered');
       }
-      
+
       // Alt + D for dashboard
       if (event.altKey && event.key === 'd') {
         event.preventDefault();
         window.location.href = '/dashboard';
       }
-      
+
       // Alt + C for campaigns
       if (event.altKey && event.key === 'c') {
         event.preventDefault();
         window.location.href = '/campaigns';
       }
-      
+
       // Alt + A for analytics
       if (event.altKey && event.key === 'a') {
         event.preventDefault();
@@ -316,11 +328,11 @@ class CRMAIzePWA {
       }
     });
   }
-  
+
   // Handle service worker messages
   handleServiceWorkerMessage(event) {
     const { data } = event;
-    
+
     switch (data.type) {
       case 'UPDATE_AVAILABLE':
         this.showUpdateAvailable();
@@ -332,7 +344,7 @@ class CRMAIzePWA {
         console.log('[PWA] Service worker message:', data);
     }
   }
-  
+
   // Show update available notification
   showUpdateAvailable() {
     const updateHtml = `
@@ -351,39 +363,42 @@ class CRMAIzePWA {
         </div>
       </div>
     `;
-    
+
     document.body.insertAdjacentHTML('beforeend', updateHtml);
-    
+
     setTimeout(() => {
       const prompt = document.getElementById('updatePrompt');
       if (prompt) prompt.remove();
     }, 10000); // Auto-hide after 10 seconds
   }
-  
+
   // Update the app
   updateApp() {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistration().then(registration => {
+      navigator.serviceWorker.getRegistration().then((registration) => {
         if (registration && registration.waiting) {
           registration.waiting.postMessage({ type: 'SKIP_WAITING' });
           window.location.reload();
         }
       });
     }
-    
+
     const prompt = document.getElementById('updatePrompt');
     if (prompt) prompt.remove();
   }
-  
+
   // Background sync for offline actions
   async syncWhenOnline(tag, data) {
-    if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+    if (
+      'serviceWorker' in navigator &&
+      'sync' in window.ServiceWorkerRegistration.prototype
+    ) {
       try {
         const registration = await navigator.serviceWorker.ready;
-        
+
         // Store data for sync
         localStorage.setItem(`sync-${tag}`, JSON.stringify(data));
-        
+
         // Register background sync
         await registration.sync.register(tag);
         console.log('[PWA] Background sync registered:', tag);
@@ -392,7 +407,7 @@ class CRMAIzePWA {
       }
     }
   }
-  
+
   // Share API integration
   async share(data) {
     if (navigator.share) {
@@ -407,7 +422,7 @@ class CRMAIzePWA {
       this.fallbackShare(data);
     }
   }
-  
+
   // Fallback share method
   fallbackShare(data) {
     if (navigator.clipboard) {
@@ -416,7 +431,7 @@ class CRMAIzePWA {
       });
     }
   }
-  
+
   // Show toast notification
   showToast(message, type = 'info') {
     const toast = document.createElement('div');
@@ -434,9 +449,9 @@ class CRMAIzePWA {
       z-index: 1002;
       animation: toastSlide 0.3s ease-out;
     `;
-    
+
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
       toast.style.animation = 'toastSlide 0.3s ease-out reverse';
       setTimeout(() => toast.remove(), 300);
@@ -465,16 +480,16 @@ if (!document.getElementById('pwa-styles')) {
         opacity: 1;
       }
     }
-    
+
     .pwa-standalone {
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
     }
-    
+
     .touch-device .button:hover {
       transform: scale(0.98);
     }
-    
+
     .touch-device .button:active {
       transform: scale(0.95);
     }
