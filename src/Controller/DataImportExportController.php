@@ -23,7 +23,8 @@ class DataImportExportController
     $this->app->getAuthService()->requireAuth();
 
     $content = $this->app->getTwig()->render('data_import_export.twig', [
-      'user' => $this->app->getAuthService()->getCurrentUser()
+      'user' => $this->app->getAuthService()->getCurrentUser(),
+      'current_page' => 'data_import_export'
     ]);
 
     $response = new Response();
@@ -107,7 +108,8 @@ class DataImportExportController
     $content = $this->app->getTwig()->render('data_import_export.twig', [
       'user' => $this->app->getAuthService()->getCurrentUser(),
       'message' => $message,
-      'errors' => $errors
+      'errors' => $errors,
+      'current_page' => 'data_import_export'
     ]);
 
     $response = new Response();
@@ -158,7 +160,8 @@ class DataImportExportController
     $content = $this->app->getTwig()->render('data_import_export.twig', [
       'user' => $this->app->getAuthService()->getCurrentUser(),
       'message' => $message,
-      'errors' => $errors
+      'errors' => $errors,
+      'current_page' => 'data_import_export'
     ]);
 
     $response = new Response();

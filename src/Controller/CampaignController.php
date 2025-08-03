@@ -24,14 +24,22 @@ class CampaignController
   public function index(Request $request): Response
   {
     $campaigns = $this->campaignRepo->getAll();
-    $html = $this->app->getTwig()->render('campaigns.twig', ['campaigns' => $campaigns]);
+    $html = $this->app->getTwig()->render('campaigns.twig', [
+      'campaigns' => $campaigns,
+      'user' => $this->app->getAuthService()->getCurrentUser(),
+      'current_page' => 'campaigns'
+    ]);
     return new Response($html);
   }
 
   public function create(Request $request): Response
   {
     $segments = $this->customerRepo->getSegmentCounts();
-    $html = $this->app->getTwig()->render('campaign_form.twig', ['segments' => $segments]);
+    $html = $this->app->getTwig()->render('campaign_form.twig', [
+      'segments' => $segments,
+      'user' => $this->app->getAuthService()->getCurrentUser(),
+      'current_page' => 'create_campaign'
+    ]);
     return new Response($html);
   }
 

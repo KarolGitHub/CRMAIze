@@ -30,7 +30,9 @@ class EmailSettingsController
 
     $data = [
       'config' => $config,
-      'testResult' => $testResult
+      'testResult' => $testResult,
+      'user' => $this->app->getAuthService()->getCurrentUser(),
+      'current_page' => 'email_settings'
     ];
 
     $html = $this->app->getTwig()->render('email_settings.twig', $data);

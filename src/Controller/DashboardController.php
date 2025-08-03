@@ -45,7 +45,8 @@ class DashboardController
       'segments' => $segments,
       'recentCampaigns' => $recentCampaigns,
       'atRiskCustomers' => $atRiskCustomers,
-      'user' => $this->app->getAuthService()->getCurrentUser()
+      'user' => $this->app->getAuthService()->getCurrentUser(),
+      'current_page' => 'dashboard'
     ];
 
     $html = $this->app->getTwig()->render('dashboard.twig', $data);

@@ -37,7 +37,8 @@ class AnalyticsController
     $content = $this->twig->render('analytics.twig', [
       'user' => $user,
       'analytics' => $analytics,
-      'page_title' => 'Analytics Dashboard'
+      'page_title' => 'Analytics Dashboard',
+      'current_page' => 'analytics'
     ]);
 
     return new Response($content);
