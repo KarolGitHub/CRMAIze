@@ -1,0 +1,340 @@
+/* Mobile-First Responsive Design for CRMAIze */
+
+/* Base Mobile Styles */
+@media screen and (max-width: 768px) {
+  /* Navigation Improvements */
+  .top-bar {
+    padding: 0.5rem;
+  }
+  
+  .top-bar .menu {
+    flex-wrap: wrap;
+  }
+  
+  .top-bar .menu li {
+    margin: 0.2rem;
+  }
+  
+  .top-bar .menu a {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  /* Off-canvas menu improvements */
+  .off-canvas {
+    width: 280px;
+  }
+  
+  .off-canvas .menu a {
+    padding: 1rem;
+    font-size: 1.1rem;
+    border-bottom: 1px solid #e6e6e6;
+  }
+  
+  .off-canvas .menu i {
+    margin-right: 0.8rem;
+    width: 20px;
+  }
+  
+  /* Card and Layout Improvements */
+  .dashboard-card,
+  .callout {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  
+  .metric-card {
+    padding: 1rem;
+    text-align: center;
+  }
+  
+  .metric-value {
+    font-size: 2rem;
+  }
+  
+  /* Table Responsiveness */
+  table {
+    font-size: 0.85rem;
+  }
+  
+  table th,
+  table td {
+    padding: 0.5rem 0.3rem;
+  }
+  
+  /* Responsive tables - stack on mobile */
+  .responsive-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  /* Form Improvements */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="datetime-local"],
+  select,
+  textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Button Improvements */
+  .button {
+    padding: 0.8rem 1.2rem;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .button-group .button {
+    width: auto;
+    margin: 0.25rem;
+  }
+  
+  .button-group {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  /* Chart Responsiveness */
+  canvas {
+    max-width: 100%;
+    height: auto !important;
+  }
+  
+  .analytics-chart {
+    height: 250px;
+    margin-bottom: 1rem;
+  }
+  
+  /* Grid Improvements */
+  .row .columns {
+    padding: 0 0.5rem;
+  }
+  
+  /* Campaign Form Mobile */
+  .campaign-form .row {
+    margin-bottom: 1rem;
+  }
+  
+  .campaign-form label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  
+  /* Analytics Mobile */
+  .analytics-overview .columns {
+    margin-bottom: 1rem;
+  }
+  
+  /* Breadcrumbs */
+  .breadcrumbs {
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+  }
+  
+  .breadcrumbs li {
+    margin-bottom: 0.25rem;
+  }
+}
+
+/* Touch-Friendly Enhancements */
+.touch-friendly {
+  min-height: 44px; /* Apple's recommended touch target size */
+  min-width: 44px;
+}
+
+/* Swipe indicators */
+.swipe-indicator {
+  position: relative;
+}
+
+.swipe-indicator::after {
+  content: "← Swipe →";
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  font-size: 0.7rem;
+  color: #666;
+  opacity: 0.7;
+}
+
+/* Loading states for mobile */
+.loading {
+  position: relative;
+}
+
+.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #1779ba;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Tablet Styles */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .top-bar .menu a {
+    padding: 0.6rem 1rem;
+  }
+  
+  .dashboard-card {
+    padding: 1.5rem;
+  }
+  
+  .metric-value {
+    font-size: 2.2rem;
+  }
+  
+  .button {
+    width: auto;
+  }
+}
+
+/* PWA Specific Styles */
+.pwa-install-prompt {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  background: #1779ba;
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  display: none;
+}
+
+.pwa-install-prompt.show {
+  display: block;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.pwa-install-prompt .close-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* Offline indicator */
+.offline-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #e74c3c;
+  color: white;
+  text-align: center;
+  padding: 0.5rem;
+  z-index: 1001;
+  display: none;
+}
+
+.offline-indicator.show {
+  display: block;
+}
+
+/* Dark mode support for PWA */
+@media (prefers-color-scheme: dark) {
+  .dashboard-card,
+  .callout {
+    background: #2c3e50;
+    color: #ecf0f1;
+  }
+  
+  .top-bar {
+    background: #34495e;
+  }
+  
+  .off-canvas {
+    background: #2c3e50;
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="datetime-local"],
+  select,
+  textarea {
+    background: #34495e;
+    color: #ecf0f1;
+    border-color: #7f8c8d;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .button {
+    border: 2px solid currentColor;
+  }
+  
+  .dashboard-card,
+  .callout {
+    border: 2px solid #333;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .top-bar,
+  .off-canvas-wrapper,
+  .button,
+  .pwa-install-prompt,
+  .offline-indicator {
+    display: none !important;
+  }
+  
+  .dashboard-card,
+  .callout {
+    border: 1px solid #333;
+    margin-bottom: 1rem;
+    break-inside: avoid;
+  }
+}

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRMAIze - Offline</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/css/foundation.min.css">
+  <link rel="stylesheet" href="/assets/css/mobile.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .offline-container {
+      background: white;
+      border-radius: 16px;
+      padding: 3rem;
+      text-align: center;
+      max-width: 500px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.6s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .offline-icon {
+      font-size: 5rem;
+      margin-bottom: 1.5rem;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+    
+    h1 {
+      color: #1779ba;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      font-weight: 300;
+    }
+    
+    .subtitle {
+      color: #666;
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+    
+    .offline-features {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      text-align: left;
+    }
+    
+    .offline-features h3 {
+      color: #1779ba;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .feature-list li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      align-items: center;
+    }
+    
+    .feature-list li:last-child {
+      border-bottom: none;
+    }
+    
+    .feature-list li::before {
+      content: "✓";
+      color: #28a745;
+      font-weight: bold;
+      margin-right: 0.8rem;
+      font-size: 1.2rem;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+    
+    .btn {
+      padding: 0.8rem 2rem;
+      border-radius: 25px;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+      background: #1779ba;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #126195;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(23, 121, 186, 0.3);
+    }
+    
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background: #545b62;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+    }
+    
+    .connection-status {
+      margin-top: 2rem;
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+    
+    .connection-status.offline {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .connection-status.online {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #1779ba;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @media (max-width: 768px) {
+      .offline-container {
+        margin: 1rem;
+        padding: 2rem 1.5rem;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .subtitle {
+        font-size: 1rem;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .btn {
+        width: 100%;
+        max-width: 250px;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-container">
+    <div class="offline-icon">📱</div>
+    <h1>You're Offline</h1>
+    <p class="subtitle">Don't worry! You can still access some features of CRMAIze while offline.</p>
+    
+    <div class="offline-features">
+      <h3>Available Offline</h3>
+      <ul class="feature-list">
+        <li>View cached dashboard data</li>
+        <li>Browse recent campaign information</li>
+        <li>Access previously loaded analytics</li>
+        <li>Review customer data (cached)</li>
+        <li>Plan new campaigns (saved when online)</li>
+      </ul>
+    </div>
+    
+    <div class="action-buttons">
+      <button class="btn btn-primary" onclick="tryReconnect()">
+        <span class="loading-spinner" id="reconnectSpinner" style="display: none;"></span>
+        <span id="reconnectText">Try Again</span>
+      </button>
+      <a href="/dashboard" class="btn btn-secondary">
+        📊 View Cached Dashboard
+      </a>
+    </div>
+    
+    <div class="connection-status offline" id="connectionStatus">
+      <strong>Status:</strong> No internet connection detected
+    </div>
+  </div>
+
+  <script>
+    // Check connection status
+    function updateConnectionStatus() {
+      const statusEl = document.getElementById('connectionStatus');
+      
+      if (navigator.onLine) {
+        statusEl.className = 'connection-status online';
+        statusEl.innerHTML = '<strong>Status:</strong> Connected! You can now access all features.';
+        
+        // Auto-redirect to dashboard after 2 seconds if online
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 2000);
+      } else {
+        statusEl.className = 'connection-status offline';
+        statusEl.innerHTML = '<strong>Status:</strong> No internet connection detected';
+      }
+    }
+    
+    // Try to reconnect
+    async function tryReconnect() {
+      const spinner = document.getElementById('reconnectSpinner');
+      const text = document.getElementById('reconnectText');
+      
+      spinner.style.display = 'inline-block';
+      text.textContent = 'Checking...';
+      
+      try {
+        // Try to fetch a small resource to test connectivity
+        const response = await fetch('/manifest.json', { 
+          cache: 'no-cache',
+          mode: 'no-cors'
+        });
+        
+        // If successful, redirect to dashboard
+        window.location.href = '/dashboard';
+      } catch (error) {
+        // Still offline
+        setTimeout(() => {
+          spinner.style.display = 'none';
+          text.textContent = 'Try Again';
+          updateConnectionStatus();
+        }, 1500);
+      }
+    }
+    
+    // Listen for online/offline events
+    window.addEventListener('online', () => {
+      console.log('Back online!');
+      updateConnectionStatus();
+    });
+    
+    window.addEventListener('offline', () => {
+      console.log('Gone offline');
+      updateConnectionStatus();
+    });
+    
+    // Initial status check
+    updateConnectionStatus();
+    
+    // Periodic connectivity check
+    setInterval(() => {
+      if (navigator.onLine) {
+        // Double-check with actual network request
+        fetch('/manifest.json', { 
+          cache: 'no-cache',
+          mode: 'no-cors'
+        }).then(() => {
+          updateConnectionStatus();
+        }).catch(() => {
+          // Still offline despite navigator.onLine
+        });
+      }
+    }, 10000); // Check every 10 seconds
+    
+    // Service worker message handling
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data.type === 'CONNECTIVITY_CHANGE') {
+          updateConnectionStatus();
+        }
+      });
+    }
+  </script>
+</body>
+</html>
