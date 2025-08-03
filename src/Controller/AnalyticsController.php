@@ -2,6 +2,7 @@
 
 namespace CRMAIze\Controller;
 
+use CRMAIze\Core\Application;
 use CRMAIze\Core\Request;
 use CRMAIze\Core\Response;
 use CRMAIze\Service\AnalyticsService;
@@ -10,15 +11,17 @@ use Twig\Environment;
 
 class AnalyticsController
 {
+  private Application $app;
   private Environment $twig;
   private AnalyticsService $analyticsService;
   private AuthService $authService;
 
-  public function __construct(Environment $twig, AnalyticsService $analyticsService, AuthService $authService)
+  public function __construct(Application $app)
   {
-    $this->twig = $twig;
-    $this->analyticsService = $analyticsService;
-    $this->authService = $authService;
+    $this->app = $app;
+    $this->twig = $app->getTwig();
+    $this->analyticsService = $app->getAnalyticsService();
+    $this->authService = $app->getAuthService();
   }
 
   /**
