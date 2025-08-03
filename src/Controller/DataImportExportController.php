@@ -18,13 +18,17 @@ class DataImportExportController
   /**
    * Show the data import/export page
    */
-  public function index(): string
+  public function index(): Response
   {
     $this->app->getAuthService()->requireAuth();
 
-    return $this->app->getTwig()->render('data_import_export.twig', [
+    $content = $this->app->getTwig()->render('data_import_export.twig', [
       'user' => $this->app->getAuthService()->getCurrentUser()
     ]);
+
+    $response = new Response();
+    $response->setContent($content);
+    return $response;
   }
 
   /**
@@ -64,7 +68,7 @@ class DataImportExportController
   /**
    * Import customers from CSV
    */
-  public function importCustomers(Request $request): string
+  public function importCustomers(Request $request): Response
   {
     $this->app->getAuthService()->requireAuth();
 
@@ -100,17 +104,21 @@ class DataImportExportController
       }
     }
 
-    return $this->app->getTwig()->render('data_import_export.twig', [
+    $content = $this->app->getTwig()->render('data_import_export.twig', [
       'user' => $this->app->getAuthService()->getCurrentUser(),
       'message' => $message,
       'errors' => $errors
     ]);
+
+    $response = new Response();
+    $response->setContent($content);
+    return $response;
   }
 
   /**
    * Import campaigns from CSV
    */
-  public function importCampaigns(Request $request): string
+  public function importCampaigns(Request $request): Response
   {
     $this->app->getAuthService()->requireAuth();
 
@@ -147,11 +155,15 @@ class DataImportExportController
       }
     }
 
-    return $this->app->getTwig()->render('data_import_export.twig', [
+    $content = $this->app->getTwig()->render('data_import_export.twig', [
       'user' => $this->app->getAuthService()->getCurrentUser(),
       'message' => $message,
       'errors' => $errors
     ]);
+
+    $response = new Response();
+    $response->setContent($content);
+    return $response;
   }
 
   /**
