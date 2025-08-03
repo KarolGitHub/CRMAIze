@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: crmaize
+    env: php
+    buildCommand: composer install --no-dev --optimize-autoloader && php scripts/install.php
+    startCommand: php -S 0.0.0.0:$PORT -t public
+    healthCheckPath: /
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: crmaize-db
+          property: connectionString
+      - key: DB_DSN
+        fromDatabase:
+          name: crmaize-db
+          property: connectionString
+
+databases:
+  - name: crmaize-db
+    databaseName: crmaize
+    user: crmaize
