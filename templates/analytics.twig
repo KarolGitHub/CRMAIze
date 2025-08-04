@@ -1,284 +1,229 @@
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-		<meta name="theme-color" content="#1779ba">
-		<meta name="apple-mobile-web-app-capable" content="yes">
-		<meta name="apple-mobile-web-app-status-bar-style" content="default">
-		<meta name="apple-mobile-web-app-title" content="CRMAIze">
-		<title>{{ page_title }}
-			- CRMAIze</title>
+{% extends "base.twig" %}
 
-		<!-- Favicon -->
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-		<link rel="icon" type="image/x-icon" href="/favicon.ico">
-		<link
-		rel="apple-touch-icon" href="/favicon.svg">
+{% block viewport_extra %}, user-scalable=no
+{% endblock %}
 
-		<!-- PWA Manifest -->
-		<link
-		rel="manifest" href="/manifest.json">
+{% block title %}
+	{{ page_title }}
+	- CRMAIze
+{% endblock %}
 
-		<!-- Stylesheets -->
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/css/foundation.min.css">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-		<link
-		rel="stylesheet" href="/assets/css/mobile.css">
+{% block head %}
+	<!-- Chart.js -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<style>
+		.dashboard-card {
+			background: white;
+			border-radius: 8px;
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		}
+		.analytics-chart {
+			position: relative;
+			height: 300px;
+		}
+	</style>
+{% endblock %}
 
-		<!-- JavaScript -->
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-		<style>
-			.dashboard-card {
-				background: white;
-				border-radius: 8px;
-				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-			}
-			.analytics-chart {
-				position: relative;
-				height: 300px;
-			}
-		</style>
-	</head>
-	<body>
-		<!-- Navigation -->
-		<div class="top-bar">
-			<div class="top-bar-left">
-				<ul class="menu">
-					<li class="menu-text">
-						<strong>CRMAIze</strong>
-					</li>
-					<li>
-						<a href="/">Dashboard</a>
-					</li>
-					<li>
-						<a href="/campaigns">Campaigns</a>
-					</li>
-					<li>
-						<a href="/customers">Customers</a>
-					</li>
-					<li class="active">
-						<a href="/analytics">Analytics</a>
-					</li>
-					{% if user.role == 'admin' %}
-						<li>
-							<a href="/email-settings">Email Settings</a>
-						</li>
-						<li>
-							<a href="/data-import-export">Data Import/Export</a>
-						</li>
-					{% endif %}
-				</ul>
+{% block content %}
+	<div class="row">
+		<div class="large-12 columns">
+			<h2>{{ page_title }}</h2>
+
+			{% if error %}
+				<div class="callout alert">
+					<p>{{ error }}</p>
+				</div>
+			{% endif %}
+
+			<!-- Overview Cards -->
+			<div class="row">
+				<div class="large-3 medium-6 columns">
+					<div class="callout primary">
+						<h5>Total Customers</h5>
+						<h3>{{ analytics.overview.total_customers|number_format }}</h3>
+					</div>
+				</div>
+				<div class="large-3 medium-6 columns">
+					<div class="callout success">
+						<h5>Total Revenue</h5>
+						<h3>${{ analytics.overview.total_revenue|number_format(2) }}</h3>
+					</div>
+				</div>
+				<div class="large-3 medium-6 columns">
+					<div class="callout warning">
+						<h5>Avg Order Value</h5>
+						<h3>${{ analytics.overview.average_order_value|number_format(2) }}</h3>
+					</div>
+				</div>
+				<div class="large-3 medium-6 columns">
+					<div class="callout secondary">
+						<h5>Active Campaigns</h5>
+						<h3>{{ analytics.overview.active_campaigns }}</h3>
+					</div>
+				</div>
 			</div>
-			<div class="top-bar-right">
-				<ul class="menu">
-					<li>
-						<span>Welcome,
-							{{ user.username }}</span>
-					</li>
-					<li>
-						<a href="/logout">Logout</a>
-					</li>
-				</ul>
+
+			<!-- Charts Row -->
+			<div class="row">
+				<div class="large-6 columns">
+					<div class="callout">
+						<h4>Revenue Trend (Last 12 Months)</h4>
+						<canvas id="revenueTrendChart" width="400" height="200"></canvas>
+					</div>
+				</div>
+				<div class="large-6 columns">
+					<div class="callout">
+						<h4>Customer Segments</h4>
+						<canvas id="customerSegmentsChart" width="400" height="200"></canvas>
+					</div>
+				</div>
 			</div>
-		</div>
-		<div class="row">
-			<div class="large-12 columns">
-				<h2>{{ page_title }}</h2>
 
-				{% if error %}
-					<div class="callout alert">
-						<p>{{ error }}</p>
+			<div class="row">
+				<div class="large-6 columns">
+					<div class="callout">
+						<h4>Campaign Performance</h4>
+						<canvas id="campaignPerformanceChart" width="400" height="200"></canvas>
 					</div>
-				{% endif %}
+				</div>
+				<div class="large-6 columns">
+					<div class="callout">
+						<h4>Customer Loyalty Distribution</h4>
+						<canvas id="loyaltyDistributionChart" width="400" height="200"></canvas>
+					</div>
+				</div>
+			</div>
 
-				<!-- Overview Cards -->
-				<div class="row">
-					<div class="large-3 medium-6 columns">
-						<div class="callout primary">
-							<h5>Total Customers</h5>
-							<h3>{{ analytics.overview.total_customers|number_format }}</h3>
-						</div>
-					</div>
-					<div class="large-3 medium-6 columns">
-						<div class="callout success">
-							<h5>Total Revenue</h5>
-							<h3>${{ analytics.overview.total_revenue|number_format(2) }}</h3>
-						</div>
-					</div>
-					<div class="large-3 medium-6 columns">
-						<div class="callout warning">
-							<h5>Avg Order Value</h5>
-							<h3>${{ analytics.overview.average_order_value|number_format(2) }}</h3>
-						</div>
-					</div>
-					<div class="large-3 medium-6 columns">
-						<div class="callout secondary">
-							<h5>Active Campaigns</h5>
-							<h3>{{ analytics.overview.active_campaigns }}</h3>
+			<!-- Detailed Analytics Links -->
+			<div class="row">
+				<div class="large-12 columns">
+					<div class="callout">
+						<h4>Detailed Analytics</h4>
+						<div class="button-group">
+							<a href="/analytics/customers" class="button">Customer Analytics</a>
+							<a href="/analytics/campaigns" class="button">Campaign Analytics</a>
+							<a href="/analytics/revenue" class="button">Revenue Analytics</a>
 						</div>
 					</div>
 				</div>
+			</div>
 
-				<!-- Charts Row -->
-				<div class="row">
-					<div class="large-6 columns">
-						<div class="callout">
-							<h4>Revenue Trend (Last 12 Months)</h4>
-							<canvas id="revenueTrendChart" width="400" height="200"></canvas>
-						</div>
-					</div>
-					<div class="large-6 columns">
-						<div class="callout">
-							<h4>Customer Segments</h4>
-							<canvas id="customerSegmentsChart" width="400" height="200"></canvas>
+			<!-- Report Downloads -->
+			<div class="row">
+				<div class="large-12 columns">
+					<div class="callout">
+						<h4>Download Reports</h4>
+						<p>Generate and download comprehensive PDF reports for your records.</p>
+						<div class="button-group">
+							<a href="/analytics/download-report?type=comprehensive" class="button primary">
+								<i class="fi-page-pdf"></i>
+								Comprehensive Report
+							</a>
+							<a href="/analytics/download-report?type=customer" class="button secondary">
+								<i class="fi-page-pdf"></i>
+								Customer Report
+							</a>
+							<a href="/analytics/download-report?type=campaign" class="button secondary">
+								<i class="fi-page-pdf"></i>
+								Campaign Report
+							</a>
+							<a href="/analytics/download-report?type=revenue" class="button secondary">
+								<i class="fi-page-pdf"></i>
+								Revenue Report
+							</a>
 						</div>
 					</div>
 				</div>
+			</div>
 
-				<div class="row">
-					<div class="large-6 columns">
-						<div class="callout">
-							<h4>Campaign Performance</h4>
-							<canvas id="campaignPerformanceChart" width="400" height="200"></canvas>
-						</div>
-					</div>
-					<div class="large-6 columns">
-						<div class="callout">
-							<h4>Customer Loyalty Distribution</h4>
-							<canvas id="loyaltyDistributionChart" width="400" height="200"></canvas>
-						</div>
+			<!-- Key Metrics Tables -->
+			<div class="row">
+				<div class="large-6 columns">
+					<div class="callout">
+						<h4>Campaign Performance Metrics</h4>
+						<table>
+							<tbody>
+								<tr>
+									<td>
+										<strong>Average Open Rate:</strong>
+									</td>
+									<td>{{ analytics.campaign_analytics.performance_metrics.average_open_rate }}%</td>
+								</tr>
+								<tr>
+									<td>
+										<strong>Average Click Rate:</strong>
+									</td>
+									<td>{{ analytics.campaign_analytics.performance_metrics.average_click_rate }}%</td>
+								</tr>
+								<tr>
+									<td>
+										<strong>Average Conversion Rate:</strong>
+									</td>
+									<td>{{ analytics.campaign_analytics.performance_metrics.average_conversion_rate }}%</td>
+								</tr>
+								<tr>
+									<td>
+										<strong>Total Emails Sent:</strong>
+									</td>
+									<td>{{ analytics.campaign_analytics.performance_metrics.total_emails_sent|number_format }}</td>
+								</tr>
+								<tr>
+									<td>
+										<strong>Revenue Generated:</strong>
+									</td>
+									<td>${{ analytics.campaign_analytics.performance_metrics.total_revenue_generated|number_format }}</td>
+								</tr>
+							</tbody>
+						</table>
 					</div>
 				</div>
-
-				<!-- Detailed Analytics Links -->
-				<div class="row">
-					<div class="large-12 columns">
-						<div class="callout">
-							<h4>Detailed Analytics</h4>
-							<div class="button-group">
-								<a href="/analytics/customers" class="button">Customer Analytics</a>
-								<a href="/analytics/campaigns" class="button">Campaign Analytics</a>
-								<a href="/analytics/revenue" class="button">Revenue Analytics</a>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<!-- Report Downloads -->
-				<div class="row">
-					<div class="large-12 columns">
-						<div class="callout">
-							<h4>Download Reports</h4>
-							<p>Generate and download comprehensive PDF reports for your records.</p>
-							<div class="button-group">
-								<a href="/analytics/download-report?type=comprehensive" class="button primary">
-									<i class="fi-page-pdf"></i>
-									Comprehensive Report
-								</a>
-								<a href="/analytics/download-report?type=customer" class="button secondary">
-									<i class="fi-page-pdf"></i>
-									Customer Report
-								</a>
-								<a href="/analytics/download-report?type=campaign" class="button secondary">
-									<i class="fi-page-pdf"></i>
-									Campaign Report
-								</a>
-								<a href="/analytics/download-report?type=revenue" class="button secondary">
-									<i class="fi-page-pdf"></i>
-									Revenue Report
-								</a>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<!-- Key Metrics Tables -->
-				<div class="row">
-					<div class="large-6 columns">
-						<div class="callout">
-							<h4>Campaign Performance Metrics</h4>
-							<table>
-								<tbody>
-									<tr>
-										<td>
-											<strong>Average Open Rate:</strong>
-										</td>
-										<td>{{ analytics.campaign_analytics.performance_metrics.average_open_rate }}%</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>Average Click Rate:</strong>
-										</td>
-										<td>{{ analytics.campaign_analytics.performance_metrics.average_click_rate }}%</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>Average Conversion Rate:</strong>
-										</td>
-										<td>{{ analytics.campaign_analytics.performance_metrics.average_conversion_rate }}%</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>Total Emails Sent:</strong>
-										</td>
-										<td>{{ analytics.campaign_analytics.performance_metrics.total_emails_sent|number_format }}</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>Revenue Generated:</strong>
-										</td>
-										<td>${{ analytics.campaign_analytics.performance_metrics.total_revenue_generated|number_format }}</td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-					</div>
-					<div class="large-6 columns">
-						<div class="callout">
-							<h4>Customer Risk Analysis</h4>
-							<table>
-								<tbody>
-									<tr>
-										<td>
-											<strong>High Risk Customers:</strong>
-										</td>
-										<td>{{ analytics.overview.high_risk_customers }}</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>Churn Rate:</strong>
-										</td>
-										<td>{{ analytics.overview.churn_rate }}%</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>High Value Customers:</strong>
-										</td>
-										<td>{{ analytics.customer_analytics.value_segments.high_value }}</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>VIP Customers:</strong>
-										</td>
-										<td>{{ analytics.customer_analytics.loyalty_levels.vip }}</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>Revenue Growth:</strong>
-										</td>
-										<td>{{ analytics.revenue_analytics.revenue_growth }}%</td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
+				<div class="large-6 columns">
+					<div class="callout">
+						<h4>Customer Risk Analysis</h4>
+						<table>
+							<tbody>
+								<tr>
+									<td>
+										<strong>High Risk Customers:</strong>
+									</td>
+									<td>{{ analytics.overview.high_risk_customers }}</td>
+								</tr>
+								<tr>
+									<td>
+										<strong>Churn Rate:</strong>
+									</td>
+									<td>{{ analytics.overview.churn_rate }}%</td>
+								</tr>
+								<tr>
+									<td>
+										<strong>High Value Customers:</strong>
+									</td>
+									<td>{{ analytics.customer_analytics.value_segments.high_value }}</td>
+								</tr>
+								<tr>
+									<td>
+										<strong>VIP Customers:</strong>
+									</td>
+									<td>{{ analytics.customer_analytics.loyalty_levels.vip }}</td>
+								</tr>
+								<tr>
+									<td>
+										<strong>Revenue Growth:</strong>
+									</td>
+									<td>{{ analytics.revenue_analytics.revenue_growth }}%</td>
+								</tr>
+							</tbody>
+						</table>
 					</div>
 				</div>
 			</div>
 		</div>
+	</div>
+{% endblock %}
 
-		<script>
-			// Load Chart.js data via AJAX and render charts
+{% block scripts %}
+	<script>
+		// Load Chart.js data via AJAX and render charts
 document.addEventListener('DOMContentLoaded', function () { // Revenue Trend Chart
 fetch('/analytics/chart-data?type=revenue_trend').then(response => response.json()).then(data => {
 const ctx = document.getElementById('revenueTrendChart').getContext('2d');
@@ -352,19 +297,5 @@ position: 'bottom'
 });
 });
 });
-		</script>
-
-		<!-- jQuery (required for Foundation) -->
-		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-		<!-- Foundation JavaScript -->
-		<script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/js/foundation.min.js"></script>
-
-		<!-- PWA JavaScript -->
-		<script src="/assets/js/pwa.js"></script>
-
-		<script>
-			$(document).foundation();
-		</script>
-	</body>
-</html>
+	</script>
+{% endblock %}
