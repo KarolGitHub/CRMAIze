@@ -1,5 +1,22 @@
 /* Mobile-First Responsive Design for CRMAIze */
 
+/* Accessibility and Focus Indicators */
+*:focus {
+  outline: 3px solid #1779ba !important;
+  outline-offset: 2px !important;
+}
+
+.button:focus {
+  box-shadow: 0 0 0 3px rgba(23, 121, 186, 0.5) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #1779ba !important;
+  box-shadow: 0 0 0 2px rgba(23, 121, 186, 0.25) !important;
+}
+
 /* Base Mobile Styles */
 @media screen and (max-width: 768px) {
   /* Navigation Improvements */
@@ -272,35 +289,7 @@
   display: block;
 }
 
-/* Dark mode support for PWA */
-@media (prefers-color-scheme: dark) {
-  .dashboard-card,
-  .callout {
-    background: #2c3e50;
-    color: #ecf0f1;
-  }
-
-  .top-bar {
-    background: #34495e;
-  }
-
-  .off-canvas {
-    background: #2c3e50;
-  }
-
-  input[type='text'],
-  input[type='email'],
-  input[type='password'],
-  input[type='number'],
-  input[type='date'],
-  input[type='datetime-local'],
-  select,
-  textarea {
-    background: #34495e;
-    color: #ecf0f1;
-    border-color: #7f8c8d;
-  }
-}
+/* Note: App is designed for light mode only - dark mode support removed */
 
 /* High contrast mode */
 @media (prefers-contrast: high) {

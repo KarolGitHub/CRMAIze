@@ -40,7 +40,7 @@ $router->get('/dashboard', [DashboardController::class, 'index']);
 
 // Campaign routes (protected)
 $router->get('/campaigns', [CampaignController::class, 'index']);
-$router->get('/campaigns/new', [CampaignController::class, 'create']);
+$router->get('/campaigns/create', [CampaignController::class, 'create']);
 $router->post('/campaigns', [CampaignController::class, 'store']);
 $router->get('/campaigns/{id}', [CampaignController::class, 'show']);
 $router->post('/campaigns/{id}/send', [CampaignController::class, 'send']);

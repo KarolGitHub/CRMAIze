@@ -1,200 +1,239 @@
 {% extends "base.twig" %}
 
-{% block title %}Data Import/Export - CRMAIze{% endblock %}
+{% block title %}Data Import/Export - CRMAIze
+{% endblock %}
 
 {% block content %}
-<div class="grid-container">
-    <div class="grid-x grid-margin-x">
-        <div class="cell">
-            <h1>Data Import/Export</h1>
-            <p class="lead">Import and export customer data and campaigns using CSV files.</p>
-        </div>
-    </div>
+	<div class="grid-container">
+		<div class="grid-x grid-margin-x">
+			<div class="cell">
+				<h1>Data Import/Export</h1>
+				<p class="lead">Import and export customer data and campaigns using CSV files.</p>
+			</div>
+		</div>
 
-    {% if message %}
-    <div class="grid-x grid-margin-x">
-        <div class="cell">
-            <div class="callout success">
-                <h5>Success!</h5>
-                <p>{{ message }}</p>
-            </div>
-        </div>
-    </div>
-    {% endif %}
+		{% if message %}
+			<div class="grid-x grid-margin-x">
+				<div class="cell">
+					<div class="callout success">
+						<h5>Success!</h5>
+						<p>{{ message }}</p>
+					</div>
+				</div>
+			</div>
+		{% endif %}
 
-    {% if errors %}
-    <div class="grid-x grid-margin-x">
-        <div class="cell">
-            <div class="callout alert">
-                <h5>Errors Found</h5>
-                <ul>
-                    {% for error in errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-    </div>
-    {% endif %}
+		{% if errors %}
+			<div class="grid-x grid-margin-x">
+				<div class="cell">
+					<div class="callout alert">
+						<h5>Errors Found</h5>
+						<ul>
+							{% for error in errors %}
+								<li>{{ error }}</li>
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
+			</div>
+		{% endif %}
 
-    <!-- Export Section -->
-    <div class="grid-x grid-margin-x">
-        <div class="cell medium-6">
-            <div class="card">
-                <div class="card-section">
-                    <h3>Export Data</h3>
-                    <p>Download your data as CSV files for backup or analysis.</p>
+		<!-- Export Section -->
+		<div class="grid-x grid-margin-x">
+			<div class="cell medium-6">
+				<div class="card">
+					<div class="card-section">
+						<h3>Export Data</h3>
+						<p>Download your data as CSV files for backup or analysis.</p>
 
-                    <div class="button-group">
-                        <a href="/export/customers" class="button">
-                            <i class="fas fa-download"></i> Export Customers
-                        </a>
-                        <a href="/export/campaigns" class="button">
-                            <i class="fas fa-download"></i> Export Campaigns
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+						<div class="button-group">
+							<a href="/export/customers" class="button">
+								<i class="fas fa-download"></i>
+								Export Customers
+							</a>
+							<a href="/export/campaigns" class="button">
+								<i class="fas fa-download"></i>
+								Export Campaigns
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
 
-        <div class="cell medium-6">
-            <div class="card">
-                <div class="card-section">
-                    <h3>Download Templates</h3>
-                    <p>Get CSV templates to help you format your data correctly.</p>
+			<div class="cell medium-6">
+				<div class="card">
+					<div class="card-section">
+						<h3>Download Templates</h3>
+						<p>Get CSV templates to help you format your data correctly.</p>
 
-                    <div class="button-group">
-                        <a href="/download/template/customers" class="button secondary">
-                            <i class="fas fa-file-csv"></i> Customer Template
-                        </a>
-                        <a href="/download/template/campaigns" class="button secondary">
-                            <i class="fas fa-file-csv"></i> Campaign Template
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+						<div class="button-group">
+							<a href="/download/template/customers" class="button secondary">
+								<i class="fas fa-file-csv"></i>
+								Customer Template
+							</a>
+							<a href="/download/template/campaigns" class="button secondary">
+								<i class="fas fa-file-csv"></i>
+								Campaign Template
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <!-- Import Section -->
-    <div class="grid-x grid-margin-x">
-        <div class="cell medium-6">
-            <div class="card">
-                <div class="card-section">
-                    <h3>Import Customers</h3>
-                    <p>Upload a CSV file to import customer data. Duplicate emails will be skipped.</p>
+		<!-- Import Section -->
+		<div class="grid-x grid-margin-x">
+			<div class="cell medium-6">
+				<div class="card">
+					<div class="card-section">
+						<h3>Import Customers</h3>
+						<p>Upload a CSV file to import customer data. Duplicate emails will be skipped.</p>
 
-                    <form action="/import/customers" method="post" enctype="multipart/form-data">
-                        <div class="input-group">
-                            <input type="file" name="csv_file" accept=".csv" class="input-group-field" required>
-                            <div class="input-group-button">
-                                <button type="submit" class="button">
-                                    <i class="fas fa-upload"></i> Import
-                                </button>
-                            </div>
-                        </div>
-                        <small class="form-text">Maximum file size: 10MB. File must be in CSV format.</small>
-                    </form>
+						<form action="/import/customers" method="post" enctype="multipart/form-data">
+							<div class="input-group">
+								<input type="file" name="csv_file" accept=".csv" class="input-group-field" required>
+								<div class="input-group-button">
+									<button type="submit" class="button">
+										<i class="fas fa-upload"></i>
+										Import
+									</button>
+								</div>
+							</div>
+							<small class="form-text">Maximum file size: 10MB. File must be in CSV format.</small>
+						</form>
 
-                    <div class="callout small">
-                        <h6>Required Fields:</h6>
-                        <ul class="no-bullet">
-                            <li><strong>Email:</strong> Customer's email address (must be unique)</li>
-                        </ul>
-                        <h6>Optional Fields:</h6>
-                        <ul class="no-bullet">
-                            <li><strong>First_Name:</strong> Customer's first name</li>
-                            <li><strong>Last_Name:</strong> Customer's last name</li>
-                            <li><strong>Total_Spent:</strong> Total amount spent (numeric)</li>
-                            <li><strong>Order_Count:</strong> Number of orders (integer)</li>
-                            <li><strong>Last_Order_Date:</strong> Date of last order (YYYY-MM-DD)</li>
-                            <li><strong>Segment:</strong> Customer segment (premium, regular, etc.)</li>
-                            <li><strong>Churn_Risk:</strong> Churn risk score (0.0 to 1.0)</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+						<div class="callout small">
+							<h6>Required Fields:</h6>
+							<ul class="no-bullet">
+								<li>
+									<strong>Email:</strong>
+									Customer's email address (must be unique)</li>
+							</ul>
+							<h6>Optional Fields:</h6>
+							<ul class="no-bullet">
+								<li>
+									<strong>First_Name:</strong>
+									Customer's first name</li>
+								<li>
+									<strong>Last_Name:</strong>
+									Customer's last name</li>
+								<li>
+									<strong>Total_Spent:</strong>
+									Total amount spent (numeric)</li>
+								<li>
+									<strong>Order_Count:</strong>
+									Number of orders (integer)</li>
+								<li>
+									<strong>Last_Order_Date:</strong>
+									Date of last order (YYYY-MM-DD)</li>
+								<li>
+									<strong>Segment:</strong>
+									Customer segment (premium, regular, etc.)</li>
+								<li>
+									<strong>Churn_Risk:</strong>
+									Churn risk score (0.0 to 1.0)</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
 
-        <div class="cell medium-6">
-            <div class="card">
-                <div class="card-section">
-                    <h3>Import Campaigns</h3>
-                    <p>Upload a CSV file to import campaign data. Campaigns will be created as drafts.</p>
+			<div class="cell medium-6">
+				<div class="card">
+					<div class="card-section">
+						<h3>Import Campaigns</h3>
+						<p>Upload a CSV file to import campaign data. Campaigns will be created as drafts.</p>
 
-                    <form action="/import/campaigns" method="post" enctype="multipart/form-data">
-                        <div class="input-group">
-                            <input type="file" name="csv_file" accept=".csv" class="input-group-field" required>
-                            <div class="input-group-button">
-                                <button type="submit" class="button">
-                                    <i class="fas fa-upload"></i> Import
-                                </button>
-                            </div>
-                        </div>
-                        <small class="form-text">Maximum file size: 10MB. File must be in CSV format.</small>
-                    </form>
+						<form action="/import/campaigns" method="post" enctype="multipart/form-data">
+							<div class="input-group">
+								<input type="file" name="csv_file" accept=".csv" class="input-group-field" required>
+								<div class="input-group-button">
+									<button type="submit" class="button">
+										<i class="fas fa-upload"></i>
+										Import
+									</button>
+								</div>
+							</div>
+							<small class="form-text">Maximum file size: 10MB. File must be in CSV format.</small>
+						</form>
 
-                    <div class="callout small">
-                        <h6>Required Fields:</h6>
-                        <ul class="no-bullet">
-                            <li><strong>Name:</strong> Campaign name</li>
-                            <li><strong>Type:</strong> Campaign type (email, discount, ab_test)</li>
-                        </ul>
-                        <h6>Optional Fields:</h6>
-                        <ul class="no-bullet">
-                            <li><strong>Subject_Line:</strong> Email subject line</li>
-                            <li><strong>Email_Content:</strong> Email body content</li>
-                            <li><strong>Target_Segment:</strong> Target customer segment</li>
-                            <li><strong>Discount_Percent:</strong> Discount percentage (numeric)</li>
-                            <li><strong>Status:</strong> Campaign status (draft, active, sent)</li>
-                            <li><strong>Scheduled_At:</strong> Scheduled send date (YYYY-MM-DD HH:MM:SS)</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+						<div class="callout small">
+							<h6>Required Fields:</h6>
+							<ul class="no-bullet">
+								<li>
+									<strong>Name:</strong>
+									Campaign name</li>
+								<li>
+									<strong>Type:</strong>
+									Campaign type (email, discount, ab_test)</li>
+							</ul>
+							<h6>Optional Fields:</h6>
+							<ul class="no-bullet">
+								<li>
+									<strong>Subject_Line:</strong>
+									Email subject line</li>
+								<li>
+									<strong>Email_Content:</strong>
+									Email body content</li>
+								<li>
+									<strong>Target_Segment:</strong>
+									Target customer segment</li>
+								<li>
+									<strong>Discount_Percent:</strong>
+									Discount percentage (numeric)</li>
+								<li>
+									<strong>Status:</strong>
+									Campaign status (draft, active, sent)</li>
+								<li>
+									<strong>Scheduled_At:</strong>
+									Scheduled send date (YYYY-MM-DD HH:MM:SS)</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <!-- Tips Section -->
-    <div class="grid-x grid-margin-x">
-        <div class="cell">
-            <div class="callout">
-                <h4>Tips for Successful Import</h4>
-                <ul>
-                    <li>Use the provided templates to ensure correct formatting</li>
-                    <li>Make sure email addresses are unique for customers</li>
-                    <li>Use proper date formats: YYYY-MM-DD for dates, YYYY-MM-DD HH:MM:SS for timestamps</li>
-                    <li>Numeric fields should contain only numbers and decimal points</li>
-                    <li>Text fields with commas or quotes will be automatically escaped</li>
-                    <li>Large files may take a few moments to process</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
+		<!-- Tips Section -->
+		<div class="grid-x grid-margin-x">
+			<div class="cell">
+				<div class="callout">
+					<h4>Tips for Successful Import</h4>
+					<ul>
+						<li>Use the provided templates to ensure correct formatting</li>
+						<li>Make sure email addresses are unique for customers</li>
+						<li>Use proper date formats: YYYY-MM-DD for dates, YYYY-MM-DD HH:MM:SS for timestamps</li>
+						<li>Numeric fields should contain only numbers and decimal points</li>
+						<li>Text fields with commas or quotes will be automatically escaped</li>
+						<li>Large files may take a few moments to process</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
 
-<style>
-.button-group {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
+	<style>
+		.button-group {
+			display: flex;
+			gap: 0.5rem;
+			flex-wrap: wrap;
+		}
 
-.button-group .button {
-    margin-bottom: 0.5rem;
-}
+		.button-group .button {
+			margin-bottom: 0.5rem;
+		}
 
-.callout.small {
-    margin-top: 1rem;
-}
+		.callout.small {
+			margin-top: 1rem;
+		}
 
-.callout.small ul {
-    margin-bottom: 0;
-}
+		.callout.small ul {
+			margin-bottom: 0;
+		}
 
-.callout.small h6 {
-    margin-bottom: 0.5rem;
-    color: #1779ba;
-}
-</style>
+		.callout.small h6 {
+			margin-bottom: 0.5rem;
+			color: #0d6efd; /* Darker blue for better contrast */
+		}
+	</style>
 {% endblock %}

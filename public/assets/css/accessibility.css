@@ -1,0 +1,421 @@
+/* Accessibility and Color Contrast Improvements for CRMAIze */
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .button {
+    border: 2px solid currentColor;
+  }
+
+  .dashboard-card,
+  .callout,
+  .config-section {
+    border: 2px solid #000;
+  }
+}
+
+/* Focus Indicators for Keyboard Navigation */
+*:focus {
+  outline: 3px solid #0056b3 !important; /* Darker blue for better contrast */
+  outline-offset: 2px !important;
+}
+
+/* Button Focus States */
+.button:focus {
+  box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.5) !important; /* Darker blue */
+}
+
+/* Form Input Focus States */
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #0056b3 !important; /* Darker blue for better contrast */
+  box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.25) !important;
+}
+
+/* Navigation Accessibility */
+.top-bar .menu > li > a:focus {
+  background: rgba(255, 255, 255, 0.3) !important;
+  color: white !important;
+  outline: 2px solid white !important;
+  outline-offset: 2px !important;
+}
+
+/* Status Indicators - Improved Contrast */
+.status-configured {
+  background-color: #198754 !important; /* Darker green for better contrast */
+}
+
+.status-not-configured {
+  background-color: #dc3545 !important; /* Keep red, already good contrast */
+}
+
+/* Alert and Success Messages - Better Contrast */
+.callout.success {
+  background-color: #d1e7dd !important;
+  border-color: #badbcc !important;
+  color: #0f5132 !important; /* Darker text for better contrast */
+}
+
+.callout.alert {
+  background-color: #f8d7da !important;
+  border-color: #f5c2c7 !important;
+  color: #721c24 !important; /* Darker text for better contrast */
+}
+
+.callout.warning {
+  background-color: #fff3cd !important;
+  border-color: #ffecb5 !important;
+  color: #664d03 !important; /* Darker text for better contrast */
+}
+
+/* Test Result Messages - Better Contrast */
+.test-success {
+  background: #d1e7dd !important;
+  border: 1px solid #badbcc !important;
+  color: #0f5132 !important; /* Darker green text */
+}
+
+.test-error {
+  background: #f8d7da !important;
+  border: 1px solid #f5c2c7 !important;
+  color: #721c24 !important; /* Darker red text */
+}
+
+/* Dashboard Metric Cards - Better Contrast */
+.metric-card.success {
+  background: #d1e7dd !important;
+  color: #0f5132 !important;
+}
+
+.metric-card.danger {
+  background: #f8d7da !important;
+  color: #721c24 !important;
+}
+
+.metric-card.info {
+  background: #e0f2fe !important; /* Slightly darker blue background */
+  color: #0c4a6e !important; /* Even darker blue text for better contrast */
+}
+
+.metric-card.warning {
+  background: #fff3cd !important;
+  color: #664d03 !important; /* Darker yellow text */
+}
+
+.metric-card.secondary {
+  background: #e2e3e5 !important;
+  color: #41464b !important; /* Darker gray text */
+}
+
+/* Campaign Status Colors - Better Contrast */
+.campaign-status.draft {
+  color: #6c757d !important; /* Darker gray */
+}
+
+.campaign-status.scheduled {
+  color: #0d6efd !important; /* Darker blue */
+}
+
+.campaign-status.sent {
+  color: #198754 !important; /* Darker green */
+}
+
+.campaign-status.failed {
+  color: #dc3545 !important; /* Keep red, already good */
+}
+
+/* Form Labels and Text - Better Contrast */
+label {
+  color: #212529 !important; /* Darker text for better contrast */
+}
+
+.help-text {
+  color: #495057 !important; /* Darker gray for better contrast */
+}
+
+/* Link Colors - Better Contrast */
+a {
+  color: #0056b3 !important; /* Even darker blue for better contrast */
+}
+
+a:hover {
+  color: #004085 !important; /* Darker on hover */
+}
+
+/* Table Headers - Better Contrast */
+table th {
+  background-color: #f8f9fa !important;
+  color: #212529 !important;
+  border-color: #dee2e6 !important;
+}
+
+/* Table Text - Better Contrast */
+table td {
+  color: #212529 !important;
+}
+
+/* Foundation Callout Text - Better Contrast */
+.callout {
+  color: #212529 !important;
+}
+
+.callout h1,
+.callout h2,
+.callout h3,
+.callout h4,
+.callout h5,
+.callout h6 {
+  color: #212529 !important;
+}
+
+.callout p {
+  color: #212529 !important;
+}
+
+/* Foundation Label Text - Better Contrast */
+.label {
+  color: #212529 !important;
+}
+
+.label.primary {
+  background-color: #0056b3 !important;
+  color: white !important;
+}
+
+.label.success {
+  background-color: #198754 !important;
+  color: white !important;
+}
+
+.label.warning {
+  background-color: #664d03 !important;
+  color: white !important;
+}
+
+.label.alert {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+.label.secondary {
+  background-color: #6c757d !important;
+  color: white !important;
+}
+
+/* Foundation Badge Text - Better Contrast */
+.badge {
+  color: #212529 !important;
+}
+
+/* Foundation Subheader Text - Better Contrast */
+.subheader {
+  color: #495057 !important;
+}
+
+/* Foundation Text Muted - Better Contrast */
+.text-muted {
+  color: #6c757d !important;
+}
+
+/* Foundation Small Text - Better Contrast */
+small {
+  color: #495057 !important;
+}
+
+/* Foundation List Text - Better Contrast */
+ul,
+ol {
+  color: #212529 !important;
+}
+
+ul li,
+ol li {
+  color: #212529 !important;
+}
+
+/* Foundation Card Text - Better Contrast */
+.card-section {
+  color: #212529 !important;
+}
+
+.card-section h1,
+.card-section h2,
+.card-section h3,
+.card-section h4,
+.card-section h5,
+.card-section h6 {
+  color: #212529 !important;
+}
+
+.card-section p {
+  color: #212529 !important;
+}
+
+/* Foundation Button Text - Better Contrast */
+.button {
+  color: white !important;
+}
+
+.button.secondary {
+  background-color: #6c757d !important;
+  color: white !important;
+}
+
+.button.success {
+  background-color: #198754 !important;
+  color: white !important;
+}
+
+.button.alert {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+.button.warning {
+  background-color: #664d03 !important;
+  color: white !important;
+}
+
+/* Foundation Menu Text - Better Contrast */
+.menu a {
+  color: #212529 !important;
+}
+
+.menu-text {
+  color: #212529 !important;
+}
+
+/* Foundation Breadcrumb Text - Better Contrast */
+.breadcrumbs a {
+  color: #0056b3 !important;
+}
+
+.breadcrumbs li {
+  color: #495057 !important;
+}
+
+/* Foundation Form Text - Better Contrast */
+input,
+select,
+textarea {
+  color: #212529 !important;
+}
+
+/* Foundation Alert Text - Better Contrast */
+.alert-box {
+  color: #212529 !important;
+}
+
+.alert-box.success {
+  background-color: #d1e7dd !important;
+  color: #0f5132 !important;
+}
+
+.alert-box.alert {
+  background-color: #f8d7da !important;
+  color: #721c24 !important;
+}
+
+.alert-box.warning {
+  background-color: #fff3cd !important;
+  color: #664d03 !important;
+}
+
+.alert-box.info {
+  background-color: #e0f2fe !important;
+  color: #0c4a6e !important;
+}
+
+/* Code Blocks - Better Contrast */
+.env-help {
+  background: #f8f9fa !important;
+  border: 1px solid #dee2e6 !important;
+  color: #212529 !important; /* Darker text */
+}
+
+code {
+  background-color: #f8f9fa !important;
+  color: #d63384 !important; /* Darker pink for better contrast */
+}
+
+/* Chart Colors - Better Contrast for Analytics */
+.chart-container {
+  background: white !important;
+}
+
+/* Skip Link for Screen Readers */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #0056b3; /* Darker blue for better contrast */
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 1000;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High Contrast Mode for Dark Text on Light Backgrounds */
+@media (prefers-contrast: high) {
+  body {
+    color: #000 !important;
+    background: #fff !important;
+  }
+
+  .top-bar {
+    background: #000 !important;
+    color: #fff !important;
+  }
+
+  .top-bar .menu > li > a {
+    color: #fff !important;
+  }
+
+  .button {
+    background: #000 !important;
+    color: #fff !important;
+    border: 2px solid #000 !important;
+  }
+
+  .button:hover {
+    background: #333 !important;
+  }
+}
+
+/* Print Styles for Better Contrast */
+@media print {
+  * {
+    background: white !important;
+    color: black !important;
+  }
+
+  .top-bar,
+  .button-group,
+  .pwa-install-prompt {
+    display: none !important;
+  }
+
+  .dashboard-card,
+  .callout {
+    border: 1px solid #000 !important;
+    background: white !important;
+    color: black !important;
+  }
+}
