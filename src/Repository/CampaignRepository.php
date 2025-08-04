@@ -142,29 +142,35 @@ class CampaignRepository
 
   public function getScheduledCampaigns(string $currentTime): array
   {
+    $isActive = $this->db->isPostgreSQL() ? true : 1;
     return $this->db->query(
       "SELECT c.* FROM campaigns c
        INNER JOIN campaign_schedules cs ON c.id = cs.campaign_id
-       WHERE c.status = 'scheduled' AND cs.scheduled_at <= ? AND cs.is_active = 1",
-      [$currentTime]
+       WHERE c.status = 'scheduled' AND cs.scheduled_at <= ? AND cs.is_active = ?",
+      [$currentTime, $isActive]
     );
   }
 
   public function getUpcomingScheduledCampaigns(): array
   {
+    $isActive = $this->db->isPostgreSQL() ? true : 1;
+    $nowFunction = $this->db->isPostgreSQL() ? 'NOW()' : "datetime('now')";
+
     return $this->db->query(
       "SELECT c.*, cs.scheduled_at, cs.timezone FROM campaigns c
        INNER JOIN campaign_schedules cs ON c.id = cs.campaign_id
-       WHERE c.status = 'scheduled' AND cs.scheduled_at > datetime('now') AND cs.is_active = 1
-       ORDER BY cs.scheduled_at ASC"
+       WHERE c.status = 'scheduled' AND cs.scheduled_at > {$nowFunction} AND cs.is_active = ?
+       ORDER BY cs.scheduled_at ASC",
+      [$isActive]
     );
   }
 
   public function deactivateSchedule(int $campaignId): bool
   {
+    $isActive = $this->db->isPostgreSQL() ? false : 0;
     return $this->db->execute(
-      "UPDATE campaign_schedules SET is_active = 0 WHERE campaign_id = ?",
-      [$campaignId]
+      "UPDATE campaign_schedules SET is_active = ? WHERE campaign_id = ?",
+      [$isActive, $campaignId]
     );
   }
 

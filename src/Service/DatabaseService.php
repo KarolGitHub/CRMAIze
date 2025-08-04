@@ -15,6 +15,28 @@ class DatabaseService
     $this->createTables();
   }
 
+  /**
+   * Get the appropriate boolean value for the current database type
+   */
+  public function getBooleanValue(bool $value): string
+  {
+    $isPostgreSQL = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql';
+
+    if ($isPostgreSQL) {
+      return $value ? 'TRUE' : 'FALSE';
+    } else {
+      return $value ? '1' : '0';
+    }
+  }
+
+  /**
+   * Check if the current database is PostgreSQL
+   */
+  public function isPostgreSQL(): bool
+  {
+    return $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql';
+  }
+
   private function connect(): void
   {
     // Handle Render.com DATABASE_URL or fallback to DB_DSN

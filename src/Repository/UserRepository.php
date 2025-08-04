@@ -16,9 +16,10 @@ class UserRepository
 
   public function findByUsername(string $username): ?User
   {
+    $isActive = $this->db->isPostgreSQL() ? true : 1;
     $result = $this->db->query(
-      "SELECT * FROM users WHERE username = ? AND is_active = 1",
-      [$username]
+      "SELECT * FROM users WHERE username = ? AND is_active = ?",
+      [$username, $isActive]
     );
 
     if (empty($result)) {
@@ -30,9 +31,10 @@ class UserRepository
 
   public function findByEmail(string $email): ?User
   {
+    $isActive = $this->db->isPostgreSQL() ? true : 1;
     $result = $this->db->query(
-      "SELECT * FROM users WHERE email = ? AND is_active = 1",
-      [$email]
+      "SELECT * FROM users WHERE email = ? AND is_active = ?",
+      [$email, $isActive]
     );
 
     if (empty($result)) {
@@ -44,9 +46,10 @@ class UserRepository
 
   public function findById(int $id): ?User
   {
+    $isActive = $this->db->isPostgreSQL() ? true : 1;
     $result = $this->db->query(
-      "SELECT * FROM users WHERE id = ? AND is_active = 1",
-      [$id]
+      "SELECT * FROM users WHERE id = ? AND is_active = ?",
+      [$id, $isActive]
     );
 
     if (empty($result)) {
@@ -98,17 +101,19 @@ class UserRepository
 
   public function deactivate(int $userId): bool
   {
+    $isActive = $this->db->isPostgreSQL() ? false : 0;
     return $this->db->execute(
-      "UPDATE users SET is_active = 0 WHERE id = ?",
-      [$userId]
+      "UPDATE users SET is_active = ? WHERE id = ?",
+      [$isActive, $userId]
     );
   }
 
   public function activate(int $userId): bool
   {
+    $isActive = $this->db->isPostgreSQL() ? true : 1;
     return $this->db->execute(
-      "UPDATE users SET is_active = 1 WHERE id = ?",
-      [$userId]
+      "UPDATE users SET is_active = ? WHERE id = ?",
+      [$isActive, $userId]
     );
   }
 }
