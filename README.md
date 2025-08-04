@@ -27,6 +27,7 @@
 
 ## Project Structure
 
+```bash
 CRMAIze/
 ├── public/
 │ └── index.php # Front controller, routing entry point
@@ -48,6 +49,7 @@ CRMAIze/
 │ └── customers.json # Sample or imported customer data
 ├── README.md
 └── composer.json
+```
 
 ---
 

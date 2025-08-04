@@ -23,6 +23,9 @@ class CampaignController
 
   public function index(Request $request): Response
   {
+    // Require authentication
+    $this->app->getAuthService()->requireAuth();
+
     $campaigns = $this->campaignRepo->getAll();
     $html = $this->app->getTwig()->render('campaigns.twig', [
       'campaigns' => $campaigns,
@@ -34,6 +37,9 @@ class CampaignController
 
   public function create(Request $request): Response
   {
+    // Require authentication
+    $this->app->getAuthService()->requireAuth();
+
     $segments = $this->customerRepo->getSegmentCounts();
     $html = $this->app->getTwig()->render('campaign_form.twig', [
       'segments' => $segments,
