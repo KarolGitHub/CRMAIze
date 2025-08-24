@@ -25,6 +25,8 @@ class Application
   private $campaignScheduler;
   private $dataImportExportService;
   private $analyticsService;
+  private $customerRepository;
+  private $campaignRepository;
 
   public function __construct()
   {
@@ -55,15 +57,15 @@ class Application
     $this->emailService = new EmailService();
 
     // Initialize Campaign Scheduler
-    $campaignRepo = new CampaignRepository($this->database);
-    $customerRepo = new CustomerRepository($this->database);
-    $this->campaignScheduler = new CampaignScheduler($campaignRepo, $customerRepo, $this->emailService);
+    $this->campaignRepository = new CampaignRepository($this->database);
+    $this->customerRepository = new CustomerRepository($this->database);
+    $this->campaignScheduler = new CampaignScheduler($this->campaignRepository, $this->customerRepository, $this->emailService);
 
     // Initialize Data Import/Export Service
-    $this->dataImportExportService = new DataImportExportService($customerRepo, $campaignRepo, $userRepository);
+    $this->dataImportExportService = new DataImportExportService($this->customerRepository, $this->campaignRepository, $userRepository);
 
     // Initialize Analytics Service
-    $this->analyticsService = new AnalyticsService($customerRepo, $campaignRepo);
+    $this->analyticsService = new AnalyticsService($this->customerRepository, $this->campaignRepository);
   }
 
   public function handle(Router $router)
@@ -125,5 +127,15 @@ class Application
   public function getAnalyticsService(): AnalyticsService
   {
     return $this->analyticsService;
+  }
+
+  public function getCustomerRepository(): CustomerRepository
+  {
+    return $this->customerRepository;
+  }
+
+  public function getCampaignRepository(): CampaignRepository
+  {
+    return $this->campaignRepository;
   }
 }

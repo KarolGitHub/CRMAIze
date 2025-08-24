@@ -1,0 +1,546 @@
+{% extends "base.twig" %}
+
+{% block title %}Advanced AI Dashboard - CRMAIze
+{% endblock %}
+
+{% block content %}
+<div class="grid-container">
+	<div class="grid-x grid-margin-x">
+		<div class="cell">
+			<h1>🤖 Advanced AI Dashboard</h1>
+			<p class="lead">Sophisticated machine learning insights for customer retention and growth</p>
+		</div>
+	</div>
+
+	<!-- Summary Cards -->
+	<div class="grid-x grid-margin-x">
+		<div class="cell small-12 medium-3">
+			<div class="card">
+				<div class="card-section">
+					<h4>High Risk Customers</h4>
+					<div class="metric-value danger">{{ summary.high_risk_customers }}</div>
+					<small>Require immediate attention</small>
+				</div>
+			</div>
+		</div>
+		<div class="cell small-12 medium-3">
+			<div class="card">
+				<div class="card-section">
+					<h4>Total CLV</h4>
+					<div class="metric-value success">${{ summary.total_clv|number_format(0) }}</div>
+					<small>Customer Lifetime Value</small>
+				</div>
+			</div>
+		</div>
+		<div class="cell small-12 medium-3">
+			<div class="card">
+				<div class="card-section">
+					<h4>Avg CLV</h4>
+					<div class="metric-value info">${{ summary.avg_clv|number_format(0) }}</div>
+					<small>Per customer</small>
+				</div>
+			</div>
+		</div>
+		<div class="cell small-12 medium-3">
+			<div class="card">
+				<div class="card-section">
+					<h4>Personalization Score</h4>
+					<div class="metric-value warning">{{ (summary.personalization_score * 100)|number_format(1) }}%</div>
+					<small>Recommendation quality</small>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Churn Predictions -->
+	<div class="grid-x grid-margin-x">
+		<div class="cell">
+			<div class="card">
+				<div class="card-divider">
+					<h3>📊 Advanced Churn Predictions</h3>
+					<small>Multi-model ensemble predictions with confidence scores</small>
+				</div>
+				<div class="card-section">
+					<div class="table-responsive">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Customer ID</th>
+									<th>Churn Probability</th>
+									<th>Risk Level</th>
+									<th>Confidence</th>
+									<th>Key Factors</th>
+									<th>Model Breakdown</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for prediction in churn_predictions|slice(0, 10) %}
+									<tr>
+										<td>{{ prediction.customer_id }}</td>
+										<td>
+											<div class="progress" style="height: 20px;">
+												<div class="progress-meter" style="width: {{ prediction.churn_probability * 100 }}%"></div>
+											</div>
+											<small>{{ (prediction.churn_probability * 100)|number_format(1) }}%</small>
+										</td>
+										<td>
+											<span class="label campaign-status-{{ prediction.risk_level }}">
+												{{ prediction.risk_level|title }}
+											</span>
+										</td>
+										<td>{{ (prediction.confidence * 100)|number_format(1) }}%</td>
+										<td>
+											<ul class="no-bullet">
+												{% for factor in prediction.key_factors|slice(0, 2) %}
+													<li>
+														<small>{{ factor.description }}
+															({{ factor.impact|number_format(3) }})</small>
+													</li>
+												{% endfor %}
+											</ul>
+										</td>
+										<td>
+											<small>
+												RF:
+												{{ (prediction.model_breakdown.random_forest * 100)|number_format(1) }}%<br>
+												GBM:
+												{{ (prediction.model_breakdown.gradient_boosting * 100)|number_format(1) }}%<br>
+												NN:
+												{{ (prediction.model_breakdown.neural_network * 100)|number_format(1) }}%
+											</small>
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+					<div class="text-center">
+						<button class="button" onclick="loadMoreChurnPredictions()">Load More</button>
+						<button class="button secondary" onclick="exportChurnData()">Export Data</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- CLV Analysis -->
+	<div class="grid-x grid-margin-x">
+		<div class="cell">
+			<div class="card">
+				<div class="card-divider">
+					<h3>💰 Customer Lifetime Value Analysis</h3>
+					<small>Historical, predictive, and segmented CLV calculations</small>
+				</div>
+				<div class="card-section">
+					<div class="table-responsive">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Customer ID</th>
+									<th>Historical CLV</th>
+									<th>Predictive CLV</th>
+									<th>Segmented CLV</th>
+									<th>Recommended CLV</th>
+									<th>Growth Potential</th>
+									<th>Retention Value</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for clv in clv_results|slice(0, 10) %}
+									<tr>
+										<td>{{ clv.customer_id }}</td>
+										<td>${{ clv.historical_clv|number_format(0) }}</td>
+										<td>${{ clv.predictive_clv|number_format(0) }}</td>
+										<td>${{ clv.segmented_clv|number_format(0) }}</td>
+										<td>
+											<strong>${{ clv.recommended_clv|number_format(0) }}</strong>
+										</td>
+										<td>{{ (clv.growth_potential * 100)|number_format(1) }}%</td>
+										<td>${{ clv.retention_value|number_format(0) }}</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+					<div class="text-center">
+						<button class="button" onclick="loadMoreCLVData()">Load More</button>
+						<button class="button secondary" onclick="exportCLVData()">Export Data</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Personalized Recommendations -->
+	<div class="grid-x grid-margin-x">
+		<div class="cell">
+			<div class="card">
+				<div class="card-divider">
+					<h3>🎯 Personalized Recommendations</h3>
+					<small>AI-powered content, timing, and channel recommendations</small>
+				</div>
+				<div class="card-section">
+					<div class="table-responsive">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Customer ID</th>
+									<th>Content Recommendations</th>
+									<th>Optimal Timing</th>
+									<th>Channel Recommendations</th>
+									<th>Offer Recommendations</th>
+									<th>Personalization Score</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for rec in recommendations|slice(0, 10) %}
+									<tr>
+										<td>{{ rec.customer_id }}</td>
+										<td>
+											<ul class="no-bullet">
+												{% for content in rec.content_recommendations %}
+													<li>
+														<small>{{ content }}</small>
+													</li>
+												{% endfor %}
+											</ul>
+										</td>
+										<td>
+											<small>
+												Days:
+												{{ rec.timing_recommendations.best_days|join(', ') }}<br>
+												Hours:
+												{{ rec.timing_recommendations.best_hours|join(', ') }}<br>
+												Frequency:
+												{{ rec.timing_recommendations.frequency }}
+											</small>
+										</td>
+										<td>
+											<ul class="no-bullet">
+												{% for channel in rec.channel_recommendations %}
+													<li>
+														<small>{{ channel|title }}</small>
+													</li>
+												{% endfor %}
+											</ul>
+										</td>
+										<td>
+											<ul class="no-bullet">
+												{% for offer in rec.offer_recommendations %}
+													<li>
+														<small>{{ offer }}</small>
+													</li>
+												{% endfor %}
+											</ul>
+										</td>
+										<td>
+											<div class="progress" style="height: 20px;">
+												<div class="progress-meter" style="width: {{ rec.personalization_score * 100 }}%"></div>
+											</div>
+											<small>{{ (rec.personalization_score * 100)|number_format(1) }}%</small>
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+					<div class="text-center">
+						<button class="button" onclick="loadMoreRecommendations()">Load More</button>
+						<button class="button secondary" onclick="exportRecommendations()">Export Data</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- AI Model Performance -->
+	<div class="grid-x grid-margin-x">
+		<div class="cell">
+			<div class="card">
+				<div class="card-divider">
+					<h3>⚡ AI Model Performance</h3>
+					<small>Model accuracy, confidence, and feature importance</small>
+				</div>
+				<div class="card-section">
+					<div class="grid-x grid-margin-x">
+						<div class="cell small-12 medium-6">
+							<h5>Model Metrics</h5>
+							<div id="model-metrics">
+								<p>Loading model performance data...</p>
+							</div>
+						</div>
+						<div class="cell small-12 medium-6">
+							<h5>Feature Importance</h5>
+							<div id="feature-importance">
+								<p>Loading feature importance data...</p>
+							</div>
+						</div>
+					</div>
+					<div class="text-center">
+						<button class="button" onclick="refreshModelPerformance()">Refresh Metrics</button>
+						<button class="button secondary" onclick="generateInsightsReport()">Generate Report</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Sentiment Analysis -->
+	<div class="grid-x grid-margin-x">
+		<div class="cell">
+			<div class="card">
+				<div class="card-divider">
+					<h3>😊 Sentiment Analysis</h3>
+					<small>Analyze customer feedback and social media mentions</small>
+				</div>
+				<div class="card-section">
+					<form id="sentiment-form">
+						<div class="grid-x grid-margin-x">
+							<div class="cell small-12 medium-8">
+								<label for="feedback-text">Customer Feedback Text</label>
+								<textarea id="feedback-text" rows="4" placeholder="Enter customer feedback to analyze sentiment..."></textarea>
+							</div>
+							<div class="cell small-12 medium-4">
+								<label>&nbsp;</label>
+								<button type="submit" class="button expanded">Analyze Sentiment</button>
+							</div>
+						</div>
+					</form>
+					<div id="sentiment-results" style="display: none;">
+						<h5>Analysis Results</h5>
+						<div id="sentiment-content"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	// Load model performance on page load
+	document.addEventListener('DOMContentLoaded', function() {
+	    loadModelPerformance();
+	});
+	
+	function loadModelPerformance() {
+	    fetch('/api/advanced-ai/model-performance')
+	        .then(response => response.json())
+	        .then(data => {
+	            if (data.success) {
+	                displayModelMetrics(data.data);
+	                displayFeatureImportance(data.data.feature_importance);
+	            }
+	        })
+	        .catch(error => {
+	            console.error('Error loading model performance:', error);
+	            document.getElementById('model-metrics').innerHTML = '<p class="callout alert">Error loading model performance data</p>';
+	        });
+	}
+	
+	function displayModelMetrics(data) {
+	    const metricsHtml = `
+	        <div class="grid-x grid-margin-x">
+	            <div class="cell small-6">
+	                <div class="callout success">
+	                    <h6>Model Accuracy</h6>
+	                    <div class="metric-value">${(data.model_accuracy * 100).toFixed(1)}%</div>
+	                </div>
+	            </div>
+	            <div class="cell small-6">
+	                <div class="callout info">
+	                    <h6>Avg Confidence</h6>
+	                    <div class="metric-value">${(data.prediction_confidence * 100).toFixed(1)}%</div>
+	                </div>
+	            </div>
+	        </div>
+	        <h6>Risk Distribution</h6>
+	        <ul>
+	            <li>High Risk: ${data.risk_distribution.high || 0}</li>
+	            <li>Medium Risk: ${data.risk_distribution.medium || 0}</li>
+	            <li>Low Risk: ${data.risk_distribution.low || 0}</li>
+	        </ul>
+	    `;
+	    document.getElementById('model-metrics').innerHTML = metricsHtml;
+	}
+	
+	function displayFeatureImportance(features) {
+	    let featuresHtml = '<ul>';
+	    for (const [feature, count] of Object.entries(features)) {
+	        featuresHtml += `<li><strong>${feature}:</strong> ${count} times</li>`;
+	    }
+	    featuresHtml += '</ul>';
+	    document.getElementById('feature-importance').innerHTML = featuresHtml;
+	}
+	
+	function refreshModelPerformance() {
+	    document.getElementById('model-metrics').innerHTML = '<p>Refreshing...</p>';
+	    document.getElementById('feature-importance').innerHTML = '<p>Refreshing...</p>';
+	    loadModelPerformance();
+	}
+	
+	function generateInsightsReport() {
+	    fetch('/api/advanced-ai/insights-report')
+	        .then(response => response.json())
+	        .then(data => {
+	            if (data.success) {
+	                // Create downloadable report
+	                const reportData = JSON.stringify(data.data, null, 2);
+	                const blob = new Blob([reportData], { type: 'application/json' });
+	                const url = window.URL.createObjectURL(blob);
+	                const a = document.createElement('a');
+	                a.href = url;
+	                a.download = `ai-insights-report-${new Date().toISOString().split('T')[0]}.json`;
+	                a.click();
+	                window.URL.revokeObjectURL(url);
+	            }
+	        })
+	        .catch(error => {
+	            console.error('Error generating report:', error);
+	            alert('Error generating insights report');
+	        });
+	}
+	
+	// Sentiment analysis form handler
+	document.getElementById('sentiment-form').addEventListener('submit', function(e) {
+	    e.preventDefault();
+	
+	    const feedbackText = document.getElementById('feedback-text').value;
+	    if (!feedbackText.trim()) {
+	        alert('Please enter feedback text to analyze');
+	        return;
+	    }
+	
+	    const feedbackData = [{
+	        id: 1,
+	        customer_id: 'demo',
+	        text: feedbackText
+	    }];
+	
+	    fetch('/api/advanced-ai/sentiment-analysis', {
+	        method: 'POST',
+	        headers: {
+	            'Content-Type': 'application/json',
+	        },
+	        body: JSON.stringify({ feedback_data: feedbackData })
+	    })
+	    .then(response => response.json())
+	    .then(data => {
+	        if (data.success) {
+	            displaySentimentResults(data.data[0]);
+	        } else {
+	            alert('Error analyzing sentiment: ' + data.error);
+	        }
+	    })
+	    .catch(error => {
+	        console.error('Error:', error);
+	        alert('Error analyzing sentiment');
+	    });
+	});
+	
+	function displaySentimentResults(result) {
+	    const sentimentClass = result.sentiment_label === 'positive' ? 'success' :
+	                          result.sentiment_label === 'negative' ? 'alert' : 'warning';
+	
+	    const resultsHtml = `
+	        <div class="callout ${sentimentClass}">
+	            <h6>Sentiment Analysis</h6>
+	            <p><strong>Sentiment:</strong> ${result.sentiment_label.toUpperCase()}</p>
+	            <p><strong>Score:</strong> ${(result.sentiment_score * 100).toFixed(1)}%</p>
+	            <p><strong>Confidence:</strong> ${(result.confidence * 100).toFixed(1)}%</p>
+	
+	            <h6>Key Topics</h6>
+	            <ul>
+	                ${result.key_topics.map(topic => `<li>${topic}</li>`).join('')}
+	            </ul>
+	
+	            <h6>Emotions Detected</h6>
+	            <ul>
+	                ${result.emotion_analysis.map(emotion => `<li>${emotion}</li>`).join('')}
+	            </ul>
+	
+	            <h6>Recommended Actions</h6>
+	            <ul>
+	                ${result.action_items.map(action => `<li>${action}</li>`).join('')}
+	            </ul>
+	        </div>
+	    `;
+	
+	    document.getElementById('sentiment-content').innerHTML = resultsHtml;
+	    document.getElementById('sentiment-results').style.display = 'block';
+	}
+	
+	// Export functions
+	function exportChurnData() {
+	    fetch('/api/advanced-ai/churn-predictions')
+	        .then(response => response.json())
+	        .then(data => {
+	            if (data.success) {
+	                downloadCSV(data.data, 'churn-predictions');
+	            }
+	        });
+	}
+	
+	function exportCLVData() {
+	    fetch('/api/advanced-ai/clv-calculations')
+	        .then(response => response.json())
+	        .then(data => {
+	            if (data.success) {
+	                downloadCSV(data.data, 'clv-calculations');
+	            }
+	        });
+	}
+	
+	function exportRecommendations() {
+	    fetch('/api/advanced-ai/recommendations')
+	        .then(response => response.json())
+	        .then(data => {
+	            if (data.success) {
+	                downloadCSV(data.data, 'recommendations');
+	            }
+	        });
+	}
+	
+	function downloadCSV(data, filename) {
+	    if (data.length === 0) {
+	        alert('No data to export');
+	        return;
+	    }
+	
+	    const headers = Object.keys(data[0]);
+	    const csvContent = [
+	        headers.join(','),
+	        ...data.map(row => headers.map(header => {
+	            const value = row[header];
+	            if (typeof value === 'object') {
+	                return JSON.stringify(value);
+	            }
+	            return value;
+	        }).join(','))
+	    ].join('\n');
+	
+	    const blob = new Blob([csvContent], { type: 'text/csv' });
+	    const url = window.URL.createObjectURL(blob);
+	    const a = document.createElement('a');
+	    a.href = url;
+	    a.download = `${filename}-${new Date().toISOString().split('T')[0]}.csv`;
+	    a.click();
+	    window.URL.revokeObjectURL(url);
+	}
+	
+	// Load more functions
+	function loadMoreChurnPredictions() {
+	    // Implementation for pagination
+	    alert('Load more functionality would be implemented here');
+	}
+	
+	function loadMoreCLVData() {
+	    // Implementation for pagination
+	    alert('Load more functionality would be implemented here');
+	}
+	
+	function loadMoreRecommendations() {
+	    // Implementation for pagination
+	    alert('Load more functionality would be implemented here');
+	}
+	</script>
+	{% endblock %}

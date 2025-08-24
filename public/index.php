@@ -11,6 +11,7 @@ use CRMAIze\Controller\AuthController;
 use CRMAIze\Controller\EmailSettingsController;
 use CRMAIze\Controller\DataImportExportController;
 use CRMAIze\Controller\AnalyticsController;
+use CRMAIze\Controller\AdvancedAIController;
 
 // Load environment variables
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
@@ -68,6 +69,15 @@ $router->get('/analytics/campaigns', [AnalyticsController::class, 'campaigns']);
 $router->get('/analytics/revenue', [AnalyticsController::class, 'revenue']);
 $router->get('/analytics/chart-data', [AnalyticsController::class, 'getChartData']);
 $router->get('/analytics/download-report', [AnalyticsController::class, 'downloadReport']);
+
+// Advanced AI routes (protected)
+$router->get('/advanced-ai', [AdvancedAIController::class, 'index']);
+$router->get('/api/advanced-ai/churn-predictions', [AdvancedAIController::class, 'getChurnPredictions']);
+$router->get('/api/advanced-ai/clv-calculations', [AdvancedAIController::class, 'getCLVCalculations']);
+$router->get('/api/advanced-ai/recommendations', [AdvancedAIController::class, 'getRecommendations']);
+$router->post('/api/advanced-ai/sentiment-analysis', [AdvancedAIController::class, 'analyzeSentiment']);
+$router->get('/api/advanced-ai/model-performance', [AdvancedAIController::class, 'getModelPerformance']);
+$router->get('/api/advanced-ai/insights-report', [AdvancedAIController::class, 'generateInsightsReport']);
 
 // Handle the request
 $app->handle($router);
