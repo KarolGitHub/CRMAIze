@@ -1,0 +1,412 @@
+{% extends "base.twig" %}
+
+{% block title %}Create A/B Test - CRMAIze
+{% endblock %}
+
+{% block content %}
+	<div class="grid-container">
+		<div class="grid-x grid-margin-x">
+			<div class="cell">
+				<h1>🧪 Create New A/B Test</h1>
+				<p class="lead">Design and configure your A/B test with statistical significance testing</p>
+			</div>
+		</div>
+
+		<form
+			id="ab-test-form" class="grid-x grid-margin-x">
+			<!-- Basic Test Information -->
+			<div class="cell">
+				<div class="card">
+					<div class="card-divider">
+						<h3>📝 Basic Test Information</h3>
+					</div>
+					<div class="card-section">
+						<div class="grid-x grid-margin-x">
+							<div class="cell small-12 medium-6">
+								<label for="test-name">Test Name *
+									<input type="text" id="test-name" name="name" placeholder="e.g., Subject Line Test" required>
+								</label>
+							</div>
+							<div class="cell small-12 medium-6">
+								<label for="target-segment">Target Segment
+									<select id="target-segment" name="target_segment">
+										{% for segmentKey, segment in segments %}
+											<option value="{{ segmentKey }}">{{ segment.name }}
+												({{ segment.count }}
+												customers)</option>
+										{% endfor %}
+									</select>
+								</label>
+							</div>
+						</div>
+						<div class="grid-x grid-margin-x">
+							<div class="cell">
+								<label for="test-description">Test Description
+									<textarea id="test-description" name="description" rows="3" placeholder="Describe what you're testing and why..."></textarea>
+								</label>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Test Configuration -->
+			<div class="cell">
+				<div class="card">
+					<div class="card-divider">
+						<h3>⚙️ Test Configuration</h3>
+					</div>
+					<div class="card-section">
+						<div class="grid-x grid-margin-x">
+							<div class="cell small-12 medium-4">
+								<label for="variant-count">Number of Variants
+									<select id="variant-count" name="variant_count" onchange="updateVariantFields()">
+										<option value="2">2 Variants (A/B)</option>
+										<option value="3">3 Variants (A/B/C)</option>
+										<option value="4">4 Variants (A/B/C/D)</option>
+									</select>
+								</label>
+							</div>
+							<div class="cell small-12 medium-4">
+								<label for="confidence-level">Confidence Level
+									<select id="confidence-level" name="confidence_level">
+										<option value="0.90">90% (Less Strict)</option>
+										<option value="0.95" selected>95% (Standard)</option>
+										<option value="0.99">99% (Very Strict)</option>
+									</select>
+								</label>
+							</div>
+							<div class="cell small-12 medium-4">
+								<label for="min-sample-size">Minimum Sample Size
+									<input type="number" id="min-sample-size" name="min_sample_size" value="100" min="50" max="10000">
+								</label>
+							</div>
+						</div>
+						<div class="grid-x grid-margin-x">
+							<div class="cell small-12 medium-6">
+								<label for="test-duration">Test Duration (Days)
+									<input type="number" id="test-duration" name="test_duration" value="14" min="1" max="90">
+								</label>
+							</div>
+							<div class="cell small-12 medium-6">
+								<label for="auto-stop">Auto-Stop on Significance
+									<select id="auto-stop" name="auto_stop">
+										<option value="true">Yes</option>
+										<option value="false" selected>No</option>
+									</select>
+								</label>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Variants Configuration -->
+			<div class="cell">
+				<div class="card">
+					<div class="card-divider">
+						<h3>🎯 Test Variants</h3>
+						<small>Configure each variant with different content to test</small>
+					</div>
+					<div class="card-section">
+						<div
+							id="variants-container"><!-- Variant fields will be dynamically generated here -->
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Split Ratios -->
+			<div class="cell">
+				<div class="card">
+					<div class="card-divider">
+						<h3>📊 Traffic Split</h3>
+						<small>How to distribute customers across variants</small>
+					</div>
+					<div class="card-section">
+						<div
+							id="split-ratios-container"><!-- Split ratio fields will be dynamically generated here -->
+						</div>
+						<div class="callout info">
+							<h6>Traffic Split Guidelines</h6>
+							<ul>
+								<li>
+									<strong>Equal Split:</strong>
+									Recommended for most tests (50/50 for 2 variants)</li>
+								<li>
+									<strong>Weighted Split:</strong>
+									Use when you want to test more traffic on promising variants</li>
+								<li>
+									<strong>Minimum:</strong>
+									Each variant should have at least 100 customers for reliable results</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Preview -->
+			<div class="cell">
+				<div class="card">
+					<div class="card-divider">
+						<h3>👁️ Test Preview</h3>
+					</div>
+					<div class="card-section">
+						<div id="test-preview">
+							<p>Configure your variants to see a preview here...</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Action Buttons -->
+			<div class="cell">
+				<div class="button-group">
+					<button type="submit" class="button success">
+						<i class="fas fa-save"></i>
+						Create A/B Test
+					</button>
+					<button type="button" class="button secondary" onclick="saveDraft()">
+						<i class="fas fa-save"></i>
+						Save as Draft
+					</button>
+					<a href="/advanced-ab-testing" class="button">
+						<i class="fas fa-times"></i>
+						Cancel
+					</a>
+				</div>
+			</div>
+		</form>
+	</div>
+
+	<script>
+		let variantCount = 2;
+
+document.addEventListener('DOMContentLoaded', function () {
+updateVariantFields();
+updateSplitRatios();
+});
+
+function updateVariantFields() {
+variantCount = parseInt(document.getElementById('variant-count').value);
+const container = document.getElementById('variants-container');
+const preview = document.getElementById('test-preview');
+
+container.innerHTML = '';
+
+for (let i = 0; i < variantCount; i++) {
+const isControl = i === 0;
+const variantHtml = `
+            <div class="variant-section" data-variant="${i}">
+                <h5>${
+isControl ? '🎯 Control Variant' : `🧪 Test Variant ${i}`
+}</h5>
+                <div class="grid-x grid-margin-x">
+                    <div class="cell small-12 medium-6">
+                        <label for="variant-${i}-name">Variant Name
+                            <input type="text" id="variant-${i}-name" name="variant_${i}_name"
+                                   value="${
+isControl ? 'Control' : `Variant ${i}`
+}" required>
+                        </label>
+                    </div>
+                    <div class="cell small-12 medium-6">
+                        <label for="variant-${i}-description">Description
+                            <input type="text" id="variant-${i}-description" name="variant_${i}_description"
+                                   placeholder="Brief description of this variant">
+                        </label>
+                    </div>
+                </div>
+                <div class="grid-x grid-margin-x">
+                    <div class="cell">
+                        <label for="variant-${i}-subject">Subject Line
+                            <input type="text" id="variant-${i}-subject" name="variant_${i}_subject"
+                                   placeholder="Email subject line" required>
+                        </label>
+                    </div>
+                </div>
+                <div class="grid-x grid-margin-x">
+                    <div class="cell">
+                        <label for="variant-${i}-content">Email Content
+                            <textarea id="variant-${i}-content" name="variant_${i}_content" rows="6"
+                                      placeholder="Email content (HTML supported)" required></textarea>
+                        </label>
+                    </div>
+                </div>
+                <hr>
+            </div>
+        `;
+container.innerHTML += variantHtml;
+}
+
+updateSplitRatios();
+updatePreview();
+}
+
+function updateSplitRatios() {
+const container = document.getElementById('split-ratios-container');
+container.innerHTML = '';
+
+const equalSplit = Math.round(100 / variantCount);
+
+for (let i = 0; i < variantCount; i++) {
+const isControl = i === 0;
+const splitHtml = `
+            <div class="cell small-12 medium-${
+12 / variantCount
+}">
+                <label for="split-ratio-${i}">${
+isControl ? 'Control' : `Variant ${i}`
+} Traffic Split (%)
+                    <input type="number" id="split-ratio-${i}" name="split_ratio_${i}"
+                           value="${equalSplit}" min="10" max="90"
+                           onchange="validateSplitRatios()">
+                </label>
+            </div>
+        `;
+container.innerHTML += splitHtml;
+}
+
+validateSplitRatios();
+}
+
+function validateSplitRatios() {
+let total = 0;
+const inputs = document.querySelectorAll('[id^="split-ratio-"]');
+
+inputs.forEach(input => {
+total += parseInt(input.value) || 0;
+});
+
+if (total !== 100) {
+document.getElementById('split-ratios-container').innerHTML += `
+            <div class="cell">
+                <div class="callout warning">
+                    <strong>Warning:</strong> Traffic split percentages must equal 100%. Current total: ${total}%
+                </div>
+            </div>
+        `;
+}
+}
+
+function updatePreview() {
+const preview = document.getElementById('test-preview');
+const testName = document.getElementById('test-name').value || 'Untitled Test';
+const targetSegment = document.getElementById('target-segment').value;
+const segmentName = document.getElementById('target-segment').options[document.getElementById('target-segment').selectedIndex].text;
+
+let previewHtml = `
+        <div class="grid-x grid-margin-x">
+            <div class="cell small-12 medium-6">
+                <h6>Test Overview</h6>
+                <ul class="no-bullet">
+                    <li><strong>Name:</strong> ${testName}</li>
+                    <li><strong>Target:</strong> ${segmentName}</li>
+                    <li><strong>Variants:</strong> ${variantCount}</li>
+                    <li><strong>Duration:</strong> ${
+document.getElementById('test-duration').value
+} days</li>
+                </ul>
+            </div>
+            <div class="cell small-12 medium-6">
+                <h6>Variants Preview</h6>
+    `;
+
+for (let i = 0; i < variantCount; i++) {
+const variantName = document.getElementById (`variant-${i}-name`) ?. value || `Variant ${i}`;
+const subject = document.getElementById (`variant-${i}-subject`) ?. value || 'No subject';
+const content = document.getElementById (`variant-${i}-content`) ?. value || 'No content';
+
+previewHtml += `
+            <div class="callout small">
+                <strong>${variantName}</strong><br>
+                <small><strong>Subject:</strong> ${subject}</small><br>
+                <small><strong>Content:</strong> ${
+content.substring(0, 50)
+}${
+content.length > 50 ? '...' : ''
+}</small>
+            </div>
+        `;
+}
+
+previewHtml += `
+            </div>
+        </div>
+    `;
+
+preview.innerHTML = previewHtml;
+}
+
+// Form submission
+document.getElementById('ab-test-form').addEventListener('submit', function (e) {
+e.preventDefault();
+
+if (!validateForm()) {
+return;
+}
+
+const formData = new FormData(this);
+const data = Object.fromEntries(formData.entries());
+
+fetch('/advanced-ab-testing/store', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(data)
+}).then(response => response.json()).then(result => {
+if (result.success) {
+alert('A/B test created successfully!');
+window.location.href = '/advanced-ab-testing';
+} else {
+alert('Error creating A/B test: ' + result.error);
+}
+}).catch(error => {
+console.error('Error:', error);
+alert('Error creating A/B test');
+});
+});
+
+function validateForm() {
+const requiredFields = ['name'];
+
+for (let i = 0; i < variantCount; i++) {
+requiredFields.push (`variant_${i}_name`, `variant_${i}_subject`, `variant_${i}_content`);
+}
+
+for (const field of requiredFields) {
+const element = document.querySelector (`[name="${field}"]`);
+if (! element || ! element.value.trim()) {
+alert (`Please fill in all required fields. Missing: ${field}`);
+return false;
+}
+}
+
+// Validate split ratios
+let total = 0;
+const inputs = document.querySelectorAll('[id^="split-ratio-"]');
+inputs.forEach(input => {
+total += parseInt(input.value) || 0;
+});
+
+if (total !== 100) {
+alert('Traffic split percentages must equal 100%. Current total: ' + total + '%');
+return false;
+}
+
+return true;
+}
+
+function saveDraft() { // Save as draft functionality
+alert('Draft saved! (This would save the test as a draft)');
+}
+
+// Update preview when fields change
+document.addEventListener('input', function (e) {
+if (e.target.name.startsWith('variant_') || e.target.name === 'name' || e.target.name === 'target_segment' || e.target.name === 'test_duration') {
+updatePreview();
+}
+});
+	</script>
+{% endblock %}

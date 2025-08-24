@@ -1,0 +1,498 @@
+{% extends "base.twig" %}
+
+{% block title %}
+	{{ test.name }}
+	- A/B Test Results - CRMAIze
+{% endblock %}
+
+{% block content %}
+	<div class="grid-container">
+		<div class="grid-x grid-margin-x">
+			<div class="cell">
+				<h1>🧪
+					{{ test.name }}</h1>
+				<p class="lead">A/B Test Results and Statistical Analysis</p>
+			</div>
+		</div>
+
+		<!-- Test Overview -->
+		<div class="grid-x grid-margin-x">
+			<div class="cell small-12 medium-8">
+				<div class="card">
+					<div class="card-divider">
+						<h3>📊 Test Overview</h3>
+					</div>
+					<div class="card-section">
+						<div class="grid-x grid-margin-x">
+							<div class="cell small-12 medium-6">
+								<h6>Test Information</h6>
+								<ul class="no-bullet">
+									<li>
+										<strong>Status:</strong>
+										<span class="label campaign-status-{{ test.status }}">{{ test.status|title }}</span>
+									</li>
+									<li>
+										<strong>Created:</strong>
+										{{ test.created_at|date('M j, Y g:i A') }}</li>
+									{% if test.started_at %}
+										<li>
+											<strong>Started:</strong>
+											{{ test.started_at|date('M j, Y g:i A') }}</li>
+									{% endif %}
+									{% if test.completed_at %}
+										<li>
+											<strong>Completed:</strong>
+											{{ test.completed_at|date('M j, Y g:i A') }}</li>
+									{% endif %}
+									<li>
+										<strong>Target Segment:</strong>
+										{{ test.target_segment|title }}</li>
+								</ul>
+							</div>
+							<div class="cell small-12 medium-6">
+								<h6>Summary Statistics</h6>
+								<ul class="no-bullet">
+									<li>
+										<strong>Total Variants:</strong>
+										{{ results.variants|length }}</li>
+									<li>
+										<strong>Total Customers:</strong>
+										{{ summary.total_customers|number_format(0) }}</li>
+									<li>
+										<strong>Average Conversion:</strong>
+										{{ summary.average_conversion_rate|number_format(2) }}%</li>
+									<li>
+										<strong>Significant Results:</strong>
+										{% if summary.statistical_significance_found %}
+											<span class="label success">Yes</span>
+										{% else %}
+											<span class="label warning">No</span>
+										{% endif %}
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="cell small-12 medium-4">
+				<div class="card">
+					<div class="card-divider">
+						<h3>🏆 Winner</h3>
+					</div>
+					<div class="card-section">
+						{% if results.winner %}
+							<div class="text-center">
+								<h4>Variant
+									{{ results.winner.variant_index }}</h4>
+								<div class="metric-value success">{{ results.winner.score|number_format(1) }}</div>
+								<small>Winner Score</small>
+								<hr>
+								<p>
+									<small>{{ results.winner.reasoning }}</small>
+								</p>
+							</div>
+						{% else %}
+							<div class="text-center">
+								<p class="text-muted">No winner declared yet</p>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Variant Results -->
+		<div class="grid-x grid-margin-x">
+			<div class="cell">
+				<div class="card">
+					<div class="card-divider">
+						<h3>📈 Variant Performance</h3>
+						<small>Detailed metrics and statistical significance for each variant</small>
+					</div>
+					<div class="card-section">
+						<div class="table-responsive">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Variant</th>
+										<th>Sent</th>
+										<th>Opens</th>
+										<th>Clicks</th>
+										<th>Conversions</th>
+										<th>Open Rate</th>
+										<th>Click Rate</th>
+										<th>Conversion Rate</th>
+										<th>Revenue</th>
+										<th>Statistical Significance</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for variant in results.variants %}
+										{% set metrics = results.metrics[loop.index0] %}
+										{% set significance = results.statistical_significance[loop.index0] %}
+										<tr {% if results.winner and results.winner.variant_index == loop.index0 %} class="highlight" {% endif %}>
+											<td>
+												<strong>{{ variant.name }}</strong>
+												{% if loop.index0 == 0 %}
+													<br><small class="text-muted">Control</small>
+												{% endif %}
+											</td>
+											<td>{{ metrics.total_sent|number_format(0) }}</td>
+											<td>{{ metrics.opens|number_format(0) }}</td>
+											<td>{{ metrics.clicks|number_format(0) }}</td>
+											<td>{{ metrics.conversions|number_format(0) }}</td>
+											<td>{{ metrics.open_rate|number_format(2) }}%</td>
+											<td>{{ metrics.click_rate|number_format(2) }}%</td>
+											<td>
+												<strong>{{ metrics.conversion_rate|number_format(2) }}%</strong>
+											</td>
+											<td>${{ metrics.revenue|number_format(2) }}</td>
+											<td>
+												{% if significance %}
+													{% if significance.significant %}
+														<span class="label success">Significant</span>
+														<br><small>p <
+															{{ (1 - significance.confidence_level)|number_format(3) }}</small>
+													{% else %}
+														<span class="label warning">Not Significant</span>
+														<br><small>p =
+															{{ significance.p_value|number_format(3) }}</small>
+													{% endif %}
+												{% else %}
+													<span class="text-muted">N/A</span>
+												{% endif %}
+											</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Statistical Analysis -->
+		<div class="grid-x grid-margin-x">
+			<div class="cell">
+				<div class="card">
+					<div class="card-divider">
+						<h3>📊 Statistical Analysis</h3>
+						<small>Detailed statistical significance testing and lift calculations</small>
+					</div>
+					<div class="card-section">
+						<div class="table-responsive">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Variant</th>
+										<th>vs Control</th>
+										<th>Lift</th>
+										<th>P-Value</th>
+										<th>Confidence Level</th>
+										<th>Sample Size</th>
+										<th>Recommendation</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for variant in results.variants %}
+										{% if loop.index0 > 0 %}
+											{% set significance = results.statistical_significance[loop.index0] %}
+											<tr>
+												<td>
+													<strong>{{ variant.name }}</strong>
+												</td>
+												<td>vs Control</td>
+												<td>
+													{% if significance.lift.direction == 'improvement' %}
+														<span class="text-success">+{{ significance.lift.percentage }}%</span>
+													{% elseif significance.lift.direction == 'decline' %}
+														<span class="text-danger">{{ significance.lift.percentage }}%</span>
+													{% else %}
+														<span class="text-muted">{{ significance.lift.percentage }}%</span>
+													{% endif %}
+												</td>
+												<td>{{ significance.p_value|number_format(4) }}</td>
+												<td>{{ (significance.confidence_level * 100)|number_format(0) }}%</td>
+												<td>
+													{% if significance.sample_size_adequate %}
+														<span class="label success">Adequate</span>
+													{% else %}
+														<span class="label warning">Insufficient</span>
+													{% endif %}
+												</td>
+												<td>
+													{% if significance.significant %}
+														{% if significance.lift.direction == 'improvement' %}
+															<span class="label success">Implement</span>
+														{% else %}
+															<span class="label alert">Reject</span>
+														{% endif %}
+													{% else %}
+														<span class="label warning">Continue Testing</span>
+													{% endif %}
+												</td>
+											</tr>
+										{% endif %}
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Time Series Chart -->
+		<div class="grid-x grid-margin-x">
+			<div class="cell">
+				<div class="card">
+					<div class="card-divider">
+						<h3>📈 Performance Over Time</h3>
+						<small>Conversion rate trends for each variant</small>
+					</div>
+					<div class="card-section">
+						<div class="grid-x grid-margin-x">
+							<div class="cell small-12 medium-3">
+								<label for="metric-selector">Metric
+									<select id="metric-selector" onchange="updateTimeSeriesChart()">
+										<option value="conversion_rate">Conversion Rate</option>
+										<option value="open_rate">Open Rate</option>
+										<option value="click_rate">Click Rate</option>
+										<option value="revenue_per_email">Revenue per Email</option>
+									</select>
+								</label>
+							</div>
+							<div class="cell small-12 medium-9">
+								<canvas id="timeSeriesChart" width="400" height="200"></canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Recommendations -->
+		<div class="grid-x grid-margin-x">
+			<div class="cell">
+				<div class="card">
+					<div class="card-divider">
+						<h3>💡 Recommendations</h3>
+					</div>
+					<div class="card-section">
+						{% if results.recommendations %}
+							{% for recommendation in results.recommendations %}
+								<div class="callout {{ recommendation.type }}">
+									<h6>{{ recommendation.message }}</h6>
+									{% if recommendation.action == 'implement_winner' %}
+										<p>Consider implementing the winning variant across your entire customer base.</p>
+									{% elseif recommendation.action == 'extend_test' %}
+										<p>Run the test longer to gather more data and achieve statistical significance.</p>
+									{% elseif recommendation.action == 'increase_sample_size' %}
+										<p>Increase the sample size by targeting more customers or running the test longer.</p>
+									{% endif %}
+								</div>
+							{% endfor %}
+						{% else %}
+							<div class="callout info">
+								<h6>No specific recommendations</h6>
+								<p>The test results are clear and no additional actions are needed.</p>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Action Buttons -->
+		<div class="grid-x grid-margin-x">
+			<div class="cell">
+				<div class="button-group">
+					{% if test.status == 'running' %}
+						<button class="button alert" onclick="stopTest({{ test.id }})">
+							<i class="fas fa-stop"></i>
+							Stop Test & Declare Winner
+						</button>
+					{% endif %}
+					<button class="button" onclick="exportResults({{ test.id }})">
+						<i class="fas fa-download"></i>
+						Export Results
+					</button>
+					<button class="button secondary" onclick="createSimilarTest({{ test.id }})">
+						<i class="fas fa-copy"></i>
+						Create Similar Test
+					</button>
+					<a href="/advanced-ab-testing" class="button">
+						<i class="fas fa-arrow-left"></i>
+						Back to A/B Tests
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script>
+		let timeSeriesChart;
+
+document.addEventListener('DOMContentLoaded', function () {
+loadTimeSeriesData();
+});
+
+function loadTimeSeriesData() {
+const testId = {{ test.id }};
+const metric = document.getElementById('metric-selector').value;
+
+fetch(`/advanced-ab-testing/time-series?test_id=${testId}&metric=${metric}`).then(response => response.json()).then(data => {
+if (data.success) {
+createTimeSeriesChart(data.data);
+}
+}).catch(error => {
+console.error('Error loading time series data:', error);
+});
+}
+
+function createTimeSeriesChart(data) {
+const ctx = document.getElementById('timeSeriesChart').getContext('2d');
+
+if (timeSeriesChart) {
+timeSeriesChart.destroy();
+}
+
+const colors = [
+'#1779ba',
+'#f39c12',
+'#e74c3c',
+'#27ae60',
+'#9b59b6'
+];
+const datasets = [];
+
+data.time_series.forEach((dayData, index) => {
+if (index === 0) 
+return;
+ // Skip first day (headers)
+
+const variantIndex = index - 1;
+const variantName = `Variant ${variantIndex}`;
+
+datasets.push({
+label: variantName,
+data: dayData.map(d => d[`variant_${variantIndex}`] || 0),
+borderColor: colors[variantIndex % colors.length],
+backgroundColor: colors[variantIndex % colors.length] + '20',
+tension: 0.1
+});
+});
+
+timeSeriesChart = new Chart(ctx, {
+type: 'line',
+data: {
+labels: data.time_series.map(d => d.date),
+datasets: datasets
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+scales: {
+y: {
+beginAtZero: true,
+title: {
+display: true,
+text: data.metric.replace('_', ' ').toUpperCase()
+}
+},
+x: {
+title: {
+display: true,
+text: 'Date'
+}
+}
+},
+plugins: {
+legend: {
+display: true,
+position: 'top'
+}
+}
+}
+});
+}
+
+function updateTimeSeriesChart() {
+loadTimeSeriesData();
+}
+
+function stopTest(testId) {
+if (confirm('Are you sure you want to stop this A/B test? This will declare a winner.')) {
+fetch('/advanced-ab-testing/stop', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(
+{test_id: testId}
+)
+}).then(response => response.json()).then(data => {
+if (data.success) {
+alert('A/B test stopped successfully! Winner: Variant ' + data.data.winner.variant_index);
+location.reload();
+} else {
+alert('Error stopping test: ' + data.error);
+}
+}).catch(error => {
+console.error('Error:', error);
+alert('Error stopping A/B test');
+});
+}
+}
+
+function exportResults(testId) { // Export detailed results
+const results = {
+test: {{ test|json_encode|raw }},
+results: {{ results|json_encode|raw }},
+summary: {{ summary|json_encode|raw }}
+};
+
+const dataStr = JSON.stringify(results, null, 2);
+const dataBlob = new Blob([dataStr], {type: 'application/json'});
+const url = window.URL.createObjectURL(dataBlob);
+const link = document.createElement('a');
+link.href = url;
+link.download = `ab-test-results-{{ test.name|lower|replace(' ', '-') }}-${
+new Date().toISOString().split('T')[0]
+}.json`;
+link.click();
+window.URL.revokeObjectURL(url);
+}
+
+function createSimilarTest(testId) { // Create a similar test based on this one
+alert('Create similar test functionality would be implemented here');
+}
+	</script>
+
+	<style>
+		.highlight {
+			background-color: #e8f5e8 !important;
+		}
+
+		.metric-value {
+			font-size: 2rem;
+			font-weight: bold;
+			color: #1779ba;
+		}
+
+		.text-success {
+			color: #27ae60 !important;
+		}
+
+		.text-danger {
+			color: #e74c3c !important;
+		}
+
+		.text-muted {
+			color: #6c757d !important;
+		}
+	</style>
+{% endblock %}

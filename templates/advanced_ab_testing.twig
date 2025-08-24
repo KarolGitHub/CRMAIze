@@ -1,0 +1,441 @@
+{% extends "base.twig" %}
+
+{% block title %}Advanced A/B Testing - CRMAIze
+{% endblock %}
+
+{% block content %}
+	<div class="grid-container">
+		<div class="grid-x grid-margin-x">
+			<div class="cell">
+				<h1>🧪 Advanced A/B Testing</h1>
+				<p class="lead">Statistical significance testing and automated optimization for campaign performance</p>
+			</div>
+		</div>
+
+		<!-- Summary Cards -->
+		<div class="grid-x grid-margin-x">
+			<div class="cell small-12 medium-3">
+				<div class="card">
+					<div class="card-section">
+						<h4>Total Tests</h4>
+						<div class="metric-value info">{{ summary.total_tests }}</div>
+						<small>All A/B tests created</small>
+					</div>
+				</div>
+			</div>
+			<div class="cell small-12 medium-3">
+				<div class="card">
+					<div class="card-section">
+						<h4>Running Tests</h4>
+						<div class="metric-value warning">{{ summary.running_tests }}</div>
+						<small>Currently active</small>
+					</div>
+				</div>
+			</div>
+			<div class="cell small-12 medium-3">
+				<div class="card">
+					<div class="card-section">
+						<h4>Completed Tests</h4>
+						<div class="metric-value success">{{ summary.completed_tests }}</div>
+						<small>Tests with results</small>
+					</div>
+				</div>
+			</div>
+			<div class="cell small-12 medium-3">
+				<div class="card">
+					<div class="card-section">
+						<h4>Significant Results</h4>
+						<div class="metric-value primary">{{ summary.tests_with_significance }}</div>
+						<small>Statistically significant</small>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Performance Metrics -->
+		<div class="grid-x grid-margin-x">
+			<div class="cell small-12 medium-6">
+				<div class="card">
+					<div class="card-section">
+						<h4>Average Conversion Rate</h4>
+						<div class="metric-value success">{{ summary.average_conversion_rate|number_format(2) }}%</div>
+						<small>Across all completed tests</small>
+					</div>
+				</div>
+			</div>
+			<div class="cell small-12 medium-6">
+				<div class="card">
+					<div class="card-section">
+						<h4>Total Customers Tested</h4>
+						<div class="metric-value info">{{ summary.total_customers|number_format(0) }}</div>
+						<small>Across all A/B tests</small>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Action Buttons -->
+		<div class="grid-x grid-margin-x">
+			<div class="cell">
+				<div class="button-group">
+					<a href="/advanced-ab-testing/create" class="button success">
+						<i class="fas fa-plus"></i>
+						Create New A/B Test
+					</a>
+					<button class="button secondary" onclick="refreshData()">
+						<i class="fas fa-sync-alt"></i>
+						Refresh Data
+					</button>
+					<button class="button" onclick="exportTestData()">
+						<i class="fas fa-download"></i>
+						Export Results
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- A/B Tests Table -->
+		<div class="grid-x grid-margin-x">
+			<div class="cell">
+				<div class="card">
+					<div class="card-divider">
+						<h3>📊 A/B Tests Overview</h3>
+						<small>All A/B tests with their current status and key metrics</small>
+					</div>
+					<div class="card-section">
+						{% if ab_tests %}
+							<div class="table-responsive">
+								<table class="table">
+									<thead>
+										<tr>
+											<th>Test Name</th>
+											<th>Status</th>
+											<th>Variants</th>
+											<th>Target Segment</th>
+											<th>Created</th>
+											<th>Actions</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for test in ab_tests %}
+											<tr>
+												<td>
+													<strong>{{ test.name }}</strong>
+													{% if test.type == 'ab_test' %}
+														<br><small class="text-muted">A/B Test</small>
+													{% endif %}
+												</td>
+												<td>
+													<span class="label campaign-status-{{ test.status }}">
+														{{ test.status|title }}
+													</span>
+												</td>
+												<td>
+													{% set variants = test.variants|json_decode %}
+													{% if variants %}
+														{{ variants|length }}
+														variants
+													{% else %}
+														<span class="text-muted">Not configured</span>
+													{% endif %}
+												</td>
+												<td>
+													{% if test.target_segment %}
+														<span class="label secondary">{{ test.target_segment|title }}</span>
+													{% else %}
+														<span class="text-muted">All customers</span>
+													{% endif %}
+												</td>
+												<td>
+													<small>{{ test.created_at|date('M j, Y') }}</small>
+												</td>
+												<td>
+													<div class="button-group small">
+														{% if test.status == 'draft' %}
+															<button class="button small" onclick="startTest({{ test.id }})">
+																<i class="fas fa-play"></i>
+																Start
+															</button>
+														{% endif %}
+														{% if test.status == 'running' %}
+															<button class="button small secondary" onclick="viewResults({{ test.id }})">
+																<i class="fas fa-chart-bar"></i>
+																Results
+															</button>
+															<button class="button small alert" onclick="stopTest({{ test.id }})">
+																<i class="fas fa-stop"></i>
+																Stop
+															</button>
+														{% endif %}
+														{% if test.status == 'completed' %}
+															<a href="/advanced-ab-testing/show?test_id={{ test.id }}" class="button small">
+																<i class="fas fa-eye"></i>
+																View
+															</a>
+														{% endif %}
+														<button class="button small secondary" onclick="editTest({{ test.id }})">
+															<i class="fas fa-edit"></i>
+															Edit
+														</button>
+													</div>
+												</td>
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						{% else %}
+							<div class="callout info">
+								<h5>No A/B Tests Found</h5>
+								<p>You haven't created any A/B tests yet. Create your first test to start optimizing your campaigns.</p>
+								<a href="/advanced-ab-testing/create" class="button success">Create Your First A/B Test</a>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Quick Stats -->
+		<div class="grid-x grid-margin-x">
+			<div class="cell">
+				<div class="card">
+					<div class="card-divider">
+						<h3>📈 Quick Statistics</h3>
+					</div>
+					<div class="card-section">
+						<div class="grid-x grid-margin-x">
+							<div class="cell small-12 medium-4">
+								<h5>Test Distribution</h5>
+								<ul class="no-bullet">
+									<li>
+										<strong>Draft:</strong>
+										{{ summary.draft_tests }}
+										tests</li>
+									<li>
+										<strong>Running:</strong>
+										{{ summary.running_tests }}
+										tests</li>
+									<li>
+										<strong>Completed:</strong>
+										{{ summary.completed_tests }}
+										tests</li>
+								</ul>
+							</div>
+							<div class="cell small-12 medium-4">
+								<h5>Performance Insights</h5>
+								<ul class="no-bullet">
+									<li>
+										<strong>Significant Results:</strong>
+										{{ summary.tests_with_significance }}
+										tests</li>
+									<li>
+										<strong>Avg Conversion:</strong>
+										{{ summary.average_conversion_rate|number_format(2) }}%</li>
+									<li>
+										<strong>Total Reach:</strong>
+										{{ summary.total_customers|number_format(0) }}
+										customers</li>
+								</ul>
+							</div>
+							<div class="cell small-12 medium-4">
+								<h5>Recent Activity</h5>
+								<div id="recent-activity">
+									<p>Loading recent activity...</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		// Load recent activity on page load
+document.addEventListener('DOMContentLoaded', function () {
+loadRecentActivity();
+});
+
+function loadRecentActivity() { // Mock recent activity data
+const activities = [
+{
+action: 'Test started',
+test: 'Subject Line Test',
+time: '2 hours ago'
+}, {
+action: 'Test completed',
+test: 'CTA Button Test',
+time: '1 day ago'
+}, {
+action: 'New test created',
+test: 'Email Layout Test',
+time: '3 days ago'
+}
+];
+
+let activityHtml = '<ul class="no-bullet">';
+activities.forEach(activity => {
+activityHtml += `<li><small><strong>${
+activity.action
+}:</strong> ${
+activity.test
+}<br><em>${
+activity.time
+}</em></small></li>`;
+});
+activityHtml += '</ul>';
+
+document.getElementById('recent-activity').innerHTML = activityHtml;
+}
+
+function startTest(testId) {
+if (confirm('Are you sure you want to start this A/B test? This will send emails to customers.')) {
+fetch('/advanced-ab-testing/start', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(
+{test_id: testId}
+)
+}).then(response => response.json()).then(data => {
+if (data.success) {
+alert('A/B test started successfully!');
+location.reload();
+} else {
+alert('Error starting test: ' + data.error);
+}
+}).catch(error => {
+console.error('Error:', error);
+alert('Error starting A/B test');
+});
+}
+}
+
+function stopTest(testId) {
+if (confirm('Are you sure you want to stop this A/B test? This will declare a winner.')) {
+fetch('/advanced-ab-testing/stop', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(
+{test_id: testId}
+)
+}).then(response => response.json()).then(data => {
+if (data.success) {
+alert('A/B test stopped successfully! Winner: Variant ' + data.data.winner.variant_index);
+location.reload();
+} else {
+alert('Error stopping test: ' + data.error);
+}
+}).catch(error => {
+console.error('Error:', error);
+alert('Error stopping A/B test');
+});
+}
+}
+
+function viewResults(testId) {
+fetch('/advanced-ab-testing/results?test_id=' + testId).then(response => response.json()).then(data => {
+if (data.success) {
+showResultsModal(data.data);
+} else {
+alert('Error loading results: ' + data.error);
+}
+}).catch(error => {
+console.error('Error:', error);
+alert('Error loading A/B test results');
+});
+}
+
+function showResultsModal(results) {
+let modalHtml = `
+        <div class="reveal" id="resultsModal" data-reveal>
+            <h3>${
+results.test_name
+} - Results</h3>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Variant</th>
+                            <th>Sent</th>
+                            <th>Opens</th>
+                            <th>Clicks</th>
+                            <th>Conversions</th>
+                            <th>Conversion Rate</th>
+                            <th>Significance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+    `;
+
+results.variants.forEach((variant, index) => {
+const metrics = results.metrics[index];
+const significance = results.statistical_significance[index];
+const significanceText = significance ? (significance.significant ? 'Yes' : 'No') : 'N/A';
+
+modalHtml += `
+            <tr>
+                <td>${
+variant.name
+}</td>
+                <td>${
+metrics.total_sent
+}</td>
+                <td>${
+metrics.opens
+}</td>
+                <td>${
+metrics.clicks
+}</td>
+                <td>${
+metrics.conversions
+}</td>
+                <td>${
+metrics.conversion_rate.toFixed(2)
+}%</td>
+                <td>${significanceText}</td>
+            </tr>
+        `;
+});
+
+modalHtml += `
+                    </tbody>
+                </table>
+            </div>
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    `;
+
+// Remove existing modal if any
+const existingModal = document.getElementById('resultsModal');
+if (existingModal) {
+existingModal.remove();
+}
+
+// Add new modal to page
+document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+// Initialize Foundation reveal
+const modal = new Foundation.Reveal(document.getElementById('resultsModal'));
+modal.open();
+}
+
+function editTest(testId) { // Redirect to edit page or show edit modal
+alert('Edit functionality would be implemented here');
+}
+
+function refreshData() {
+location.reload();
+}
+
+function exportTestData() { // Export all test data
+alert('Export functionality would be implemented here');
+}
+	</script>
+{% endblock %}

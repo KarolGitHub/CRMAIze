@@ -132,6 +132,11 @@
 							<i class="fas fa-robot"></i>
 							Advanced AI</a>
 					</li>
+					<li {% if current_page == 'advanced_ab_testing' %} class="is-active" {% endif %}>
+						<a href="/advanced-ab-testing">
+							<i class="fas fa-flask"></i>
+							A/B Testing</a>
+					</li>
 					{% if user and user.role == 'admin' %}
 						<li {% if current_page == 'email_settings' %} class="is-active" {% endif %}>
 							<a href="/email-settings">

@@ -105,6 +105,15 @@ class CampaignRepository
         ", [$segment]);
   }
 
+  public function getByType(string $type): array
+  {
+    return $this->db->query("
+            SELECT * FROM campaigns
+            WHERE type = ?
+            ORDER BY created_at DESC
+        ", [$type]);
+  }
+
   public function delete(int $id): bool
   {
     return $this->db->execute("DELETE FROM campaigns WHERE id = ?", [$id]);

@@ -12,6 +12,7 @@ use CRMAIze\Controller\EmailSettingsController;
 use CRMAIze\Controller\DataImportExportController;
 use CRMAIze\Controller\AnalyticsController;
 use CRMAIze\Controller\AdvancedAIController;
+use CRMAIze\Controller\AdvancedABTestingController;
 
 // Load environment variables
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
@@ -78,6 +79,19 @@ $router->get('/api/advanced-ai/recommendations', [AdvancedAIController::class, '
 $router->post('/api/advanced-ai/sentiment-analysis', [AdvancedAIController::class, 'analyzeSentiment']);
 $router->get('/api/advanced-ai/model-performance', [AdvancedAIController::class, 'getModelPerformance']);
 $router->get('/api/advanced-ai/insights-report', [AdvancedAIController::class, 'generateInsightsReport']);
+
+// Advanced A/B Testing routes (protected)
+$router->get('/advanced-ab-testing', [AdvancedABTestingController::class, 'index']);
+$router->get('/advanced-ab-testing/create', [AdvancedABTestingController::class, 'create']);
+$router->post('/advanced-ab-testing/store', [AdvancedABTestingController::class, 'store']);
+$router->post('/advanced-ab-testing/start', [AdvancedABTestingController::class, 'start']);
+$router->get('/advanced-ab-testing/results', [AdvancedABTestingController::class, 'results']);
+$router->post('/advanced-ab-testing/stop', [AdvancedABTestingController::class, 'stop']);
+$router->get('/advanced-ab-testing/time-series', [AdvancedABTestingController::class, 'timeSeries']);
+$router->get('/advanced-ab-testing/summary', [AdvancedABTestingController::class, 'summary']);
+$router->get('/advanced-ab-testing/show', [AdvancedABTestingController::class, 'show']);
+$router->get('/api/advanced-ab-testing/segments', [AdvancedABTestingController::class, 'getSegments']);
+$router->get('/api/advanced-ab-testing/segment-customers', [AdvancedABTestingController::class, 'getSegmentCustomers']);
 
 // Handle the request
 $app->handle($router);
