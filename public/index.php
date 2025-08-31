@@ -13,6 +13,7 @@ use CRMAIze\Controller\DataImportExportController;
 use CRMAIze\Controller\AnalyticsController;
 use CRMAIze\Controller\AdvancedAIController;
 use CRMAIze\Controller\AdvancedABTestingController;
+use CRMAIze\Controller\CampaignTemplateController;
 
 // Load environment variables
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
@@ -92,6 +93,18 @@ $router->get('/advanced-ab-testing/summary', [AdvancedABTestingController::class
 $router->get('/advanced-ab-testing/show', [AdvancedABTestingController::class, 'show']);
 $router->get('/api/advanced-ab-testing/segments', [AdvancedABTestingController::class, 'getSegments']);
 $router->get('/api/advanced-ab-testing/segment-customers', [AdvancedABTestingController::class, 'getSegmentCustomers']);
+
+// Campaign Template routes (protected)
+$router->get('/templates', [CampaignTemplateController::class, 'index']);
+$router->get('/templates/create', [CampaignTemplateController::class, 'create']);
+$router->post('/templates', [CampaignTemplateController::class, 'store']);
+$router->get('/templates/{id}', [CampaignTemplateController::class, 'show']);
+$router->get('/templates/{id}/edit', [CampaignTemplateController::class, 'edit']);
+$router->post('/templates/{id}', [CampaignTemplateController::class, 'update']);
+$router->post('/templates/{id}/delete', [CampaignTemplateController::class, 'delete']);
+$router->get('/templates/{id}/use', [CampaignTemplateController::class, 'useTemplate']);
+$router->post('/templates/{id}/rate', [CampaignTemplateController::class, 'rateTemplate']);
+$router->get('/templates/seed', [CampaignTemplateController::class, 'seed']);
 
 // Handle the request
 $app->handle($router);

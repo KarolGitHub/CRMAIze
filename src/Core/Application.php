@@ -11,9 +11,11 @@ use CRMAIze\Service\EmailService;
 use CRMAIze\Service\CampaignScheduler;
 use CRMAIze\Service\DataImportExportService;
 use CRMAIze\Service\AnalyticsService;
+use CRMAIze\Service\CampaignTemplateService;
 use CRMAIze\Repository\UserRepository;
 use CRMAIze\Repository\CampaignRepository;
 use CRMAIze\Repository\CustomerRepository;
+use CRMAIze\Repository\CampaignTemplateRepository;
 
 class Application
 {
@@ -25,6 +27,7 @@ class Application
   private $campaignScheduler;
   private $dataImportExportService;
   private $analyticsService;
+  private $campaignTemplateService;
   private $customerRepository;
   private $campaignRepository;
 
@@ -66,6 +69,10 @@ class Application
 
     // Initialize Analytics Service
     $this->analyticsService = new AnalyticsService($this->customerRepository, $this->campaignRepository);
+
+    // Initialize Campaign Template Service
+    $campaignTemplateRepository = new CampaignTemplateRepository($this->database);
+    $this->campaignTemplateService = new CampaignTemplateService($campaignTemplateRepository);
   }
 
   public function handle(Router $router)
@@ -137,5 +144,10 @@ class Application
   public function getCampaignRepository(): CampaignRepository
   {
     return $this->campaignRepository;
+  }
+
+  public function getCampaignTemplateService(): CampaignTemplateService
+  {
+    return $this->campaignTemplateService;
   }
 }

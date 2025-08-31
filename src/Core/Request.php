@@ -67,4 +67,9 @@ class Request
     }
     return $this->get($key, $default);
   }
+
+  public function getPost(): array
+  {
+    return $this->post;
+  }
 }

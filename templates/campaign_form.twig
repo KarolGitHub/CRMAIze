@@ -61,15 +61,17 @@
 							<div class="grid-x grid-padding-x">
 								<div class="cell medium-6">
 									<label for="name">Campaign Name *
-										<input type="text" id="name" name="name" required placeholder="e.g., At-Risk Customer Recovery">
+										<input type="text" id="name" name="name" required 
+											   value="{{ app.request.get('name', '') }}"
+											   placeholder="e.g., At-Risk Customer Recovery">
 									</label>
 								</div>
 								<div class="cell medium-6">
 									<label for="type">Campaign Type *
 										<select id="type" name="type" required>
 											<option value="">Select Type</option>
-											<option value="email">Email Campaign</option>
-											<option value="discount">Discount Campaign</option>
+											<option value="email" {{ app.request.get('type') == 'email' ? 'selected' : '' }}>Email Campaign</option>
+											<option value="discount" {{ app.request.get('type') == 'discount' ? 'selected' : '' }}>Discount Campaign</option>
 										</select>
 									</label>
 								</div>
@@ -81,17 +83,19 @@
 									<label for="target_segment">Target Segment
 										<select id="target_segment" name="target_segment">
 											<option value="">All Customers</option>
-											<option value="at_risk">At-Risk Customers</option>
-											<option value="loyal">Loyal Customers</option>
-											<option value="high_value">High-Value Customers</option>
-											<option value="new">New Customers</option>
-											<option value="inactive">Inactive Customers</option>
+											<option value="at_risk" {{ app.request.get('target_segment') == 'at_risk' ? 'selected' : '' }}>At-Risk Customers</option>
+											<option value="loyal" {{ app.request.get('target_segment') == 'loyal' ? 'selected' : '' }}>Loyal Customers</option>
+											<option value="high_value" {{ app.request.get('target_segment') == 'high_value' ? 'selected' : '' }}>High-Value Customers</option>
+											<option value="new" {{ app.request.get('target_segment') == 'new' ? 'selected' : '' }}>New Customers</option>
+											<option value="inactive" {{ app.request.get('target_segment') == 'inactive' ? 'selected' : '' }}>Inactive Customers</option>
 										</select>
 									</label>
 								</div>
 								<div class="cell medium-6">
 									<label for="discount_percent" id="discount_label" style="display: none;">Discount Percentage
-										<input type="number" id="discount_percent" name="discount_percent" min="5" max="50" placeholder="e.g., 15">
+										<input type="number" id="discount_percent" name="discount_percent" min="5" max="50" 
+											   value="{{ app.request.get('discount_percent', '') }}"
+											   placeholder="e.g., 15">
 									</label>
 								</div>
 							</div>
@@ -99,11 +103,14 @@
 							<!-- Email Content -->
 							<div id="email_content_section" style="display: none;">
 								<label for="subject_line">Subject Line
-									<input type="text" id="subject_line" name="subject_line" placeholder="AI will suggest a subject line">
+									<input type="text" id="subject_line" name="subject_line" 
+										   value="{{ app.request.get('subject_line', '') }}"
+										   placeholder="AI will suggest a subject line">
 								</label>
 
 								<label for="email_content">Email Content
-									<textarea id="email_content" name="email_content" rows="8" placeholder="Enter your email content here..."></textarea>
+									<textarea id="email_content" name="email_content" rows="8" 
+											  placeholder="Enter your email content here...">{{ app.request.get('email_content', '') }}</textarea>
 								</label>
 
 								<div class="ai-suggestion">

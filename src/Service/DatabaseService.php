@@ -170,6 +170,26 @@ class DatabaseService
                 FOREIGN KEY (campaign_id) REFERENCES campaigns(id),
                 FOREIGN KEY (customer_id) REFERENCES customers(id)
             );
+
+            CREATE TABLE IF NOT EXISTS campaign_templates (
+                id $autoIncrement,
+                name VARCHAR(255) NOT NULL,
+                description TEXT,
+                category VARCHAR(50) NOT NULL CHECK (category IN ('welcome', 'abandoned_cart', 're_engagement', 'promotional', 'seasonal', 'custom')),
+                type VARCHAR(20) NOT NULL CHECK (type IN ('email', 'discount')),
+                subject_line VARCHAR(255),
+                email_content TEXT,
+                discount_percent INTEGER,
+                target_segment VARCHAR(50),
+                is_public $booleanType DEFAULT " . ($isPostgreSQL ? 'TRUE' : '1') . ",
+                created_by INTEGER,
+                usage_count INTEGER DEFAULT 0,
+                rating DECIMAL(3,2) DEFAULT 0,
+                tags TEXT,
+                created_at $timestampDefault,
+                updated_at $timestampDefault,
+                FOREIGN KEY (created_by) REFERENCES users(id)
+            );
         ";
 
     $this->pdo->exec($sql);

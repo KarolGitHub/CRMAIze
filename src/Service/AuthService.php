@@ -114,4 +114,16 @@ class AuthService
 
     return $this->userRepository->create($data);
   }
+
+  public function getCurrentUserId(): ?int
+  {
+    $user = $this->getCurrentUser();
+    return $user ? $user->getId() : null;
+  }
+
+  public function getCurrentUserRole(): ?string
+  {
+    $user = $this->getCurrentUser();
+    return $user ? $user->getRole() : null;
+  }
 }
