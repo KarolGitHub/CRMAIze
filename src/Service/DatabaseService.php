@@ -85,7 +85,8 @@ class DatabaseService
       }
       // Older libpq builds lack SNI, which Neon needs to route to the endpoint
       if (str_ends_with($parsed['host'], '.neon.tech')) {
-        $endpointId = preg_replace('/-pooler$/', '', explode('.', $parsed['host'])[0]);
+        // Must equal the SNI label exactly (including any -pooler suffix)
+        $endpointId = explode('.', $parsed['host'])[0];
         $dsn .= ";options='endpoint=" . $endpointId . "'";
       }
       $username = isset($parsed['user']) ? urldecode($parsed['user']) : '';
