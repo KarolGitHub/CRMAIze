@@ -37,22 +37,59 @@ class DatabaseService
     return $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql';
   }
 
+  private function env(string $key): ?string
+  {
+    $value = $_ENV[$key] ?? getenv($key);
+    return ($value === false || $value === null || $value === '') ? null : (string) $value;
+  }
+
   private function connect(): void
   {
     // Handle Render.com DATABASE_URL or fallback to DB_DSN
-    $databaseUrl = $_ENV['DATABASE_URL'] ?? null;
+    // DB_PROVIDER selects the database: neon | render | local (DB_DSN/SQLite).
+    // When unset, DATABASE_URL is used if present, otherwise DB_DSN.
+    $provider = strtolower(trim($this->env('DB_PROVIDER') ?? ''));
+    $databaseUrl = null;
+
+    if ($provider === 'neon') {
+      $databaseUrl = $this->env('NEON_DATABASE_URL') ?? $this->env('DATABASE_URL');
+    } elseif ($provider === 'render') {
+      $databaseUrl = $this->env('RENDER_DATABASE_URL') ?? $this->env('DATABASE_URL');
+    } elseif ($provider === '' || $provider === 'auto') {
+      $databaseUrl = $this->env('DATABASE_URL');
+    } elseif ($provider !== 'local') {
+      throw new \Exception("Invalid DB_PROVIDER '$provider'. Use neon, render or local.");
+    }
+
+    if (in_array($provider, ['neon', 'render'], true) && !$databaseUrl) {
+      throw new \Exception("DB_PROVIDER=$provider but no database URL is set.");
+    }
 
     if ($databaseUrl) {
       // Parse Render's DATABASE_URL format: postgres://user:pass@host:port/dbname
       $parsed = parse_url($databaseUrl);
+      if ($parsed === false || empty($parsed['host'])) {
+        throw new \Exception('Database connection failed: invalid database URL.');
+      }
+      parse_str($parsed['query'] ?? '', $query);
       $dsn = sprintf(
         'pgsql:host=%s;port=%d;dbname=%s',
         $parsed['host'],
         $parsed['port'] ?? 5432,
-        ltrim($parsed['path'], '/')
+        ltrim($parsed['path'] ?? '', '/')
       );
-      $username = $parsed['user'];
-      $password = $parsed['pass'];
+      // Neon requires TLS
+      $sslmode = $query['sslmode'] ?? ($provider === 'neon' ? 'require' : null);
+      if ($sslmode) {
+        $dsn .= ';sslmode=' . $sslmode;
+      }
+      // Older libpq builds lack SNI, which Neon needs to route to the endpoint
+      if (str_ends_with($parsed['host'], '.neon.tech')) {
+        $endpointId = preg_replace('/-pooler$/', '', explode('.', $parsed['host'])[0]);
+        $dsn .= ";options='endpoint=" . $endpointId . "'";
+      }
+      $username = isset($parsed['user']) ? urldecode($parsed['user']) : '';
+      $password = isset($parsed['pass']) ? urldecode($parsed['pass']) : '';
     } else {
       // Fallback to traditional DSN format
       $dsn = $_ENV['DB_DSN'] ?? 'sqlite:' . __DIR__ . '/../../data/crmaize.db';

@@ -57,3 +57,4 @@ twig-cache/
 # Optional: ignore uploaded data/sample files
 data/*.json
 uploads/
+.neon
